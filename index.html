@@ -1,0 +1,2911 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1017">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SandVoc">
+<meta name="description" content="SandVoc — personal English vocabulary tracker with auto dictionary lookup, spaced repetition and progress analytics.">
+<title>SandVoc — English Vocabulary Tracker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%235b8def'/><text y='70' x='50' text-anchor='middle' font-size='58' font-family='system-ui' font-weight='800' fill='white'>S</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d1017;--panel:#121721;--card:#161c28;--card2:#1d2534;
+  --bd:#242d3d;--bd2:#2f3a4d;
+  --tx:#e7ecf5;--tx2:#94a2b8;--tx3:#63718a;
+  --ac:#5b8def;--ok:#2ecc71;--warn:#f2a33c;--bad:#ef5350;
+  --pur:#a78bfa;--teal:#2dd4bf;
+  --r:14px;--sh:0 8px 28px rgba(0,0,0,.4);--fs:15px;
+}
+[data-theme="light"]{
+  --bg:#f3f5fa;--panel:#fff;--card:#fff;--card2:#f2f5fb;
+  --bd:#e2e7f0;--bd2:#d3dae6;
+  --tx:#131a26;--tx2:#5a6579;--tx3:#8b95a8;
+  --sh:0 8px 24px rgba(20,30,60,.1);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-size:var(--fs);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+[data-theme="dark"] body{background:
+  radial-gradient(1200px 600px at 80% -10%,#1a2438 0,transparent 60%),
+  radial-gradient(900px 500px at -10% 110%,#16202f 0,transparent 60%),var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:6px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:8px;border:3px solid transparent;background-clip:content-box}
+
+#app{display:flex;min-height:100vh}
+.sidebar{width:250px;flex:0 0 250px;background:var(--panel);border-right:1px solid var(--bd);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:16px 12px;
+  display:flex;flex-direction:column;gap:3px;z-index:30}
+.brand{display:flex;align-items:center;gap:10px;padding:8px 10px 18px}
+.brand .logo{width:36px;height:36px;flex:0 0 36px;border-radius:11px;
+  background:linear-gradient(135deg,var(--ac),var(--pur));display:grid;place-items:center;
+  font-weight:800;color:#fff;font-size:17px}
+.brand h1{font-size:15.5px;font-weight:750;letter-spacing:-.2px}
+.brand small{display:block;font-size:11px;color:var(--tx3);font-weight:500}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;cursor:pointer;
+  color:var(--tx2);font-size:13.5px;font-weight:550;border:none;background:none;width:100%;
+  text-align:left;transition:background .14s,color .14s}
+.nav-item:hover{background:var(--card2);color:var(--tx)}
+.nav-item.on{background:linear-gradient(90deg,rgba(91,141,239,.22),transparent);color:var(--tx)}
+.nav-item.on .ico{color:var(--ac)}
+.nav-item .ico{width:20px;text-align:center;font-size:15px;flex:0 0 20px}
+.nav-item .badge{margin-left:auto;background:var(--bad);color:#fff;font-size:10.5px;
+  font-weight:700;padding:1px 7px;border-radius:20px}
+.side-foot{margin-top:auto;padding:12px 10px 4px;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd)}
+
+.main{flex:1;min-width:0;padding:22px 26px 60px;max-width:1400px;margin:0 auto;width:100%}
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.topbar h2{font-size:22px;font-weight:750;letter-spacing:-.4px}
+.topbar .sub{font-size:12.5px;color:var(--tx3);font-weight:500}
+.spacer{flex:1}
+.bnav{display:none}
+
+@media(max-width:920px){
+  .sidebar{display:none}
+  .main{padding:14px 13px 96px}
+  .topbar h2{font-size:19px}
+  .bnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--panel);
+    border-top:1px solid var(--bd);z-index:60;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));justify-content:space-around;
+    box-shadow:0 -6px 24px rgba(0,0,0,.22)}
+  .bnav button{flex:1;background:none;border:none;display:flex;flex-direction:column;
+    align-items:center;gap:2px;padding:6px 2px;color:var(--tx3);font-size:10px;
+    font-weight:600;border-radius:10px;cursor:pointer;position:relative}
+  .bnav button .ico{font-size:18px;line-height:1}
+  .bnav button.on{color:var(--ac)}
+  .bnav button .badge{position:absolute;top:0;right:calc(50% - 20px);background:var(--bad);
+    color:#fff;font-size:9px;padding:0 5px;border-radius:10px;font-weight:800}
+}
+
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:18px}
+.card+.card{margin-top:14px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1100px){.g5{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.g3,.g4,.g5{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+
+h3.sec{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--tx3);margin:22px 0 10px}
+h3.sec:first-child{margin-top:0}
+
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px 15px}
+.stat .k{font-size:11px;font-weight:650;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--tx3);margin-bottom:6px}
+.stat .v{font-size:26px;font-weight:780;letter-spacing:-1px;line-height:1.1}
+.stat .v small{font-size:13px;font-weight:600;color:var(--tx3)}
+.stat .d{font-size:11.5px;color:var(--tx3);margin-top:3px}
+.stat.accent{border-color:rgba(91,141,239,.4)}
+.stat.ok .v{color:var(--ok)} .stat.bad .v{color:var(--bad)}
+.stat.warn .v{color:var(--warn)} .stat.pur .v{color:var(--pur)}
+
+.bar{height:9px;background:var(--card2);border-radius:20px;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:20px;
+  background:linear-gradient(90deg,var(--ac),var(--pur));transition:width .5s cubic-bezier(.3,1,.4,1)}
+.bar.ok>i{background:linear-gradient(90deg,#2ecc71,#2dd4bf)}
+.bar.warn>i{background:linear-gradient(90deg,#f2a33c,#ef5350)}
+.bar.thin{height:6px}
+.bar-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);
+  margin-bottom:6px;font-weight:550}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  background:var(--ac);color:#fff;border:1px solid transparent;border-radius:10px;
+  padding:10px 16px;font-size:13.5px;font-weight:650;cursor:pointer;min-height:42px;
+  transition:filter .14s,transform .1s;white-space:nowrap}
+.btn:hover{filter:brightness(1.1)} .btn:active{transform:scale(.975)}
+.btn.ghost{background:var(--card2);color:var(--tx);border-color:var(--bd)}
+.btn.ghost:hover{background:var(--bd)}
+.btn.ok{background:var(--ok);color:#04240f}
+.btn.warn{background:var(--warn);color:#2a1700}
+.btn.bad{background:var(--bad);color:#fff}
+.btn.sm{padding:6px 11px;font-size:12.5px;min-height:34px;border-radius:8px}
+.btn.xs{padding:4px 9px;font-size:11.5px;min-height:28px;border-radius:7px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+.inp,select.inp,textarea.inp{width:100%;background:var(--card2);border:1px solid var(--bd);
+  border-radius:10px;padding:10px 12px;font-size:14px;min-height:42px;
+  transition:border-color .14s,background .14s}
+.inp:focus{border-color:var(--ac);outline:none;background:var(--card)}
+textarea.inp{min-height:74px;resize:vertical;line-height:1.55}
+label.lbl{display:block;font-size:11.5px;font-weight:650;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--tx3);margin:12px 0 5px}
+.hint{font-size:11.5px;color:var(--tx3);margin-top:4px;line-height:1.45}
+
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--bd);
+  color:var(--tx2);border-radius:20px;padding:4px 11px;font-size:11.5px;font-weight:600;
+  cursor:pointer;transition:all .13s;user-select:none}
+.chip:hover{border-color:var(--bd2);color:var(--tx)}
+.chip.on{background:rgba(91,141,239,.22);border-color:var(--ac);color:var(--ac)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10.5px;
+  font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.t-A1{background:#1f4d3a;color:#7ff0bb} .t-A2{background:#1d4a52;color:#7fe4f0}
+.t-B1{background:#2b3f6b;color:#9dc0ff} .t-B2{background:#3d3068;color:#c4b0ff}
+.t-C1{background:#5a2f52;color:#ffb0e8} .t-C2{background:#5c3220;color:#ffbb92}
+[data-theme="light"] .t-A1{background:#d6f7e6;color:#0c6b42}
+[data-theme="light"] .t-A2{background:#d4f2f8;color:#0a6273}
+[data-theme="light"] .t-B1{background:#dbe7ff;color:#1c4bb8}
+[data-theme="light"] .t-B2{background:#e8e0ff;color:#5733c4}
+[data-theme="light"] .t-C1{background:#ffe0f4;color:#a3257e}
+[data-theme="light"] .t-C2{background:#ffe5d6;color:#a34a17}
+
+.st{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+.st-New{background:#20304a;color:#8fb4ee}
+.st-Learning{background:#4a3a1c;color:#f2c86b}
+.st-Familiar{background:#1c3f4a;color:#7fd8ee}
+.st-Strong{background:#1e4433;color:#79e2a8}
+.st-Mastered{background:#3a2a55;color:#c3aaff}
+[data-theme="light"] .st-New{background:#e2ebfb;color:#2a5cb8}
+[data-theme="light"] .st-Learning{background:#fdf0d5;color:#8a5c00}
+[data-theme="light"] .st-Familiar{background:#dcf3fa;color:#0d6070}
+[data-theme="light"] .st-Strong{background:#dcf7e8;color:#0b6b3e}
+[data-theme="light"] .st-Mastered{background:#ece4ff;color:#5b32c9}
+
+.wcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);
+  padding:15px 16px;transition:border-color .15s}
+.wcard:hover{border-color:var(--bd2)}
+.wcard .head{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.wcard .w{font-size:19px;font-weight:750;letter-spacing:-.4px}
+.wcard .pron{font-size:12.5px;color:var(--tx3);font-weight:500}
+.wcard .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:2px}
+.mline{display:flex;gap:9px;font-size:13px;margin-top:8px;line-height:1.55}
+.mline .n{color:var(--tx3);font-weight:700;font-size:11.5px;min-width:14px;padding-top:1px}
+.mline .t{flex:1;color:var(--tx2)}
+.mline .t b{color:var(--tx);font-weight:600}
+.ex{font-style:italic;color:var(--tx2);border-left:2px solid var(--bd2);
+  padding-left:10px;margin-top:8px;font-size:13px}
+.coll{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.coll span{background:rgba(45,212,191,.16);border:1px solid rgba(45,212,191,.35);
+  color:var(--teal);border-radius:7px;padding:2px 8px;font-size:11.5px;font-weight:600}
+[data-theme="light"] .coll span{color:#0b7a6d}
+.syn span{background:rgba(167,139,250,.16);border-color:rgba(167,139,250,.35);color:var(--pur)}
+[data-theme="light"] .syn span{color:#5b32c9}
+.ant span{background:rgba(239,83,80,.16);border-color:rgba(239,83,80,.35);color:var(--bad)}
+[data-theme="light"] .ant span{color:#b3241f}
+
+.overlay{position:fixed;inset:0;background:rgba(4,7,13,.72);backdrop-filter:blur(4px);
+  z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;
+  animation:fade .16s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--panel);border:1px solid var(--bd);border-radius:18px;width:100%;
+  max-width:780px;max-height:92vh;display:flex;flex-direction:column;box-shadow:var(--sh);
+  animation:pop .2s cubic-bezier(.2,1.2,.4,1)}
+@keyframes pop{from{transform:translateY(14px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.modal.sm{max-width:440px}
+.modal-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--bd)}
+.modal-head h3{font-size:16.5px;font-weight:730;flex:1;letter-spacing:-.2px}
+.modal-body{padding:16px 18px;overflow-y:auto;flex:1}
+.modal-foot{padding:13px 18px;border-top:1px solid var(--bd);display:flex;gap:9px;
+  justify-content:flex-end;flex-wrap:wrap}
+.x{background:none;border:none;color:var(--tx3);font-size:22px;cursor:pointer;
+  line-height:1;padding:2px 6px;border-radius:8px}
+.x:hover{background:var(--card2);color:var(--tx)}
+
+#toastRoot{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:400;
+  display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;
+  width:min(92vw,440px)}
+.toast{background:var(--card2);border:1px solid var(--bd2);color:var(--tx);
+  padding:11px 16px;border-radius:11px;font-size:13.5px;font-weight:600;
+  box-shadow:var(--sh);animation:tin .22s ease;width:100%;text-align:center}
+.toast.ok{border-color:var(--ok)} .toast.bad{border-color:var(--bad)}
+.toast.warn{border-color:var(--warn)}
+@keyframes tin{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+@media(max-width:920px){#toastRoot{bottom:86px}}
+
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .dow{text-align:center;font-size:10.5px;font-weight:700;color:var(--tx3);
+  text-transform:uppercase;letter-spacing:.5px;padding-bottom:2px}
+.cday{aspect-ratio:1;border-radius:10px;background:var(--card2);border:1px solid transparent;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;font-size:12.5px;font-weight:600;transition:transform .12s,border-color .12s;
+  position:relative;padding:2px;min-height:44px}
+.cday:hover{transform:scale(1.06);border-color:var(--bd2)}
+.cday.empty{background:transparent;cursor:default;pointer-events:none}
+.cday .p{font-size:8.5px;opacity:.85;font-weight:700;line-height:1}
+.cday.done{background:linear-gradient(160deg,rgba(46,204,113,.35),rgba(45,212,191,.2));
+  border-color:rgba(46,204,113,.4)}
+.cday.part{background:linear-gradient(160deg,rgba(242,163,60,.28),rgba(239,83,80,.14));
+  border-color:rgba(242,163,60,.4)}
+.cday.skip{background:repeating-linear-gradient(45deg,rgba(239,83,80,.14),
+  rgba(239,83,80,.14) 5px,transparent 5px,transparent 10px);
+  border-color:rgba(239,83,80,.35);color:var(--tx3)}
+.cday.today{border-color:var(--ac);box-shadow:0 0 0 2px rgba(91,141,239,.3)}
+.cday.future{opacity:.42}
+
+.flash{background:linear-gradient(165deg,var(--card),var(--card2));border:1px solid var(--bd);
+  border-radius:20px;padding:38px 24px;text-align:center;min-height:270px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.flash .w{font-size:clamp(30px,8vw,48px);font-weight:800;letter-spacing:-1.4px;line-height:1.1}
+.flash .ipa{font-size:15px;color:var(--tx3);font-weight:500}
+
+.qopt{display:block;width:100%;text-align:left;background:var(--card2);border:1px solid var(--bd);
+  border-radius:12px;padding:13px 16px;margin-bottom:9px;cursor:pointer;font-size:14px;
+  font-weight:550;transition:all .14s;min-height:48px}
+.qopt:hover{border-color:var(--ac);background:var(--card)}
+.qopt.correct{border-color:var(--ok);background:rgba(46,204,113,.18)}
+.qopt.wrong{border-color:var(--bad);background:rgba(239,83,80,.18)}
+.qopt[disabled]{cursor:default}
+
+.rm{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.rmcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);
+  padding:14px;position:relative;overflow:hidden}
+.rmcard .m{font-size:11px;font-weight:750;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px}
+.rmcard .lv{font-size:17px;font-weight:750;margin:3px 0 8px;letter-spacing:-.3px}
+.rmcard.cur{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac) inset}
+.rmcard.cur::after{content:'CURRENT';position:absolute;top:10px;right:-26px;background:var(--ac);
+  color:#fff;font-size:8.5px;font-weight:800;padding:2px 28px;transform:rotate(38deg);
+  letter-spacing:.5px}
+
+.row{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:11px;
+  background:var(--card2);border:1px solid transparent;margin-bottom:7px}
+.row:hover{border-color:var(--bd2)}
+.row .grow{flex:1;min-width:0}
+.row .ttl{font-weight:650;font-size:14px}
+.row .sub{font-size:11.5px;color:var(--tx3)}
+
+.empty{text-align:center;padding:44px 20px;color:var(--tx3)}
+.empty .e{font-size:38px;margin-bottom:10px;opacity:.5}
+.empty h4{font-size:16px;color:var(--tx2);font-weight:650;margin-bottom:6px}
+.empty p{font-size:13px;max-width:420px;margin:0 auto 16px;line-height:1.6}
+
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd);
+  font-size:13px;gap:12px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--tx3);font-weight:550}
+.kv .v{font-weight:680;text-align:right}
+
+.flexrow{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.mt{margin-top:14px} .mt-s{margin-top:8px} .mb{margin-bottom:14px}
+.tx2{color:var(--tx2)} .tx3{color:var(--tx3)}
+.mono{font-variant-numeric:tabular-nums}
+.center{text-align:center}
+
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.fetchlog{max-height:220px;overflow-y:auto;margin-top:10px;font-size:12.5px;
+  border:1px solid var(--bd);border-radius:10px;padding:8px 10px;background:var(--card2)}
+.fetchlog .fl{display:flex;align-items:center;gap:8px;padding:4px 0;
+  border-bottom:1px solid var(--bd)}
+.fetchlog .fl:last-child{border-bottom:none}
+.fetchlog .ic{width:14px;flex:0 0 14px;font-weight:800}
+.fetchlog .wd{font-weight:650;min-width:110px;flex:0 0 110px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.fetchlog .dt{color:var(--tx3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main"><div id="viewRoot"></div></main>
+</div>
+<nav class="bnav" id="bnav"></nav>
+<div id="modalRoot"></div>
+<div id="toastRoot" aria-live="polite"></div>
+<input type="file" id="fileIn" accept=".json,.csv,.txt" style="display:none">
+
+<script>
+"use strict";
+/* ============================================================================
+   SANDVOC — English Vocabulary Learning & Tracking System
+   Single-file, offline-first, publish-ready.
+   ========================================================================== */
+
+/* ---------- UTILS ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+
+const localISO = (d = new Date()) => {
+  const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return z.toISOString().slice(0, 10);
+};
+const todayISO = () => localISO();
+const parseISO = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (iso, n) => { const d = parseISO(iso); d.setDate(d.getDate() + n); return localISO(d); };
+const daysBetween = (a, b) => Math.round((parseISO(b) - parseISO(a)) / 86400000);
+const prettyDate = iso => iso ? parseISO(iso).toLocaleDateString(undefined,
+  { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+const shortDate = iso => iso ? parseISO(iso).toLocaleDateString(undefined,
+  { month: 'short', day: 'numeric' }) : '—';
+const startOfWeekISO = iso => {
+  const d = parseISO(iso), dow = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - dow); return localISO(d);
+};
+const monthKey = iso => iso.slice(0, 7);
+const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+const pct = (a, b) => b > 0 ? (a / b) * 100 : 0;
+const fmtPct = (n, d = 1) => (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d) + '%';
+const num = n => (n ?? 0).toLocaleString();
+const splitList = v => Array.isArray(v)
+  ? v.map(x => String(x).trim()).filter(Boolean)
+  : String(v || '').split(/[\n,;]+/).map(x => x.trim()).filter(Boolean);
+
+/* ---------- STORAGE ---------- */
+const DB_NAME = 'sandvoc_db';
+const DB_VERSION = 1;
+const DB = (() => {
+  let idb = null, useFallback = false;
+  const LS_KEY = 'sandvoc_fallback_v1';
+  const lsRead = () => { try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { return {}; } };
+  const lsWrite = o => { try { localStorage.setItem(LS_KEY, JSON.stringify(o)); } catch (e) { console.warn('LS full', e); } };
+  const lsStore = name => {
+    const all = lsRead(); if (!all[name]) all[name] = {};
+    return {
+      get: k => all[name][k],
+      put: v => { all[name][v.id ?? v.key ?? v.date] = v; lsWrite(all); },
+      all: () => Object.values(all[name]),
+      del: k => { delete all[name][k]; lsWrite(all); },
+      clear: () => { all[name] = {}; lsWrite(all); }
+    };
+  };
+  async function open() {
+    if (idb || useFallback) return;
+    if (!('indexedDB' in window)) { useFallback = true; return; }
+    try {
+      idb = await new Promise((res, rej) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = e => {
+          const d = e.target.result;
+          if (!d.objectStoreNames.contains('words')) d.createObjectStore('words', { keyPath: 'id' });
+          if (!d.objectStoreNames.contains('days')) d.createObjectStore('days', { keyPath: 'date' });
+          if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'key' });
+          if (!d.objectStoreNames.contains('quizzes')) d.createObjectStore('quizzes', { keyPath: 'id' });
+        };
+        req.onsuccess = e => res(e.target.result);
+        req.onerror = e => rej(e.target.error);
+      });
+    } catch (e) { console.warn('IDB failed', e); useFallback = true; }
+  }
+  return {
+    init: async () => { await open(); },
+    get fallback() { return useFallback; },
+    async getAll(store) {
+      if (useFallback) return lsStore(store).all();
+      return new Promise((res, rej) => {
+        const t = idb.transaction(store, 'readonly');
+        const r = t.objectStore(store).getAll();
+        r.onsuccess = () => res(r.result || []);
+        r.onerror = () => rej(r.error);
+      });
+    },
+    async put(store, val) {
+      if (useFallback) { lsStore(store).put(val); return val; }
+      return new Promise((res, rej) => {
+        const t = idb.transaction(store, 'readwrite');
+        t.objectStore(store).put(val);
+        t.oncomplete = () => res(val);
+        t.onerror = () => rej(t.error);
+      });
+    },
+    async bulkPut(store, arr) {
+      if (useFallback) { arr.forEach(v => lsStore(store).put(v)); return arr.length; }
+      return new Promise((res, rej) => {
+        const t = idb.transaction(store, 'readwrite');
+        const s = t.objectStore(store);
+        arr.forEach(v => s.put(v));
+        t.oncomplete = () => res(arr.length);
+        t.onerror = () => rej(t.error);
+      });
+    },
+    async del(store, key) {
+      if (useFallback) { lsStore(store).del(key); return; }
+      return new Promise((res, rej) => {
+        const t = idb.transaction(store, 'readwrite');
+        t.objectStore(store).delete(key);
+        t.oncomplete = () => res();
+        t.onerror = () => rej(t.error);
+      });
+    },
+    async clear(store) {
+      if (useFallback) { lsStore(store).clear(); return; }
+      return new Promise((res, rej) => {
+        const t = idb.transaction(store, 'readwrite');
+        t.objectStore(store).clear();
+        t.oncomplete = () => res();
+        t.onerror = () => rej(t.error);
+      });
+    }
+  };
+})();
+
+/* ---------- CONSTANTS ---------- */
+const DEFAULT_SETTINGS = {
+  dailyTarget: 20, totalGoal: 8400, theme: 'dark', fontSize: 15,
+  defaultLevel: 'B1', autoSpeech: false, autoFetch: true,
+  programStart: todayISO(), ieltsGoal: 7.5, targetCefr: 'C1',
+  srsIntervals: [1, 3, 7, 14, 30, 60, 120, 240],
+  deviceName: '', demoLoaded: false
+};
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+const LEVEL_PLAN = { A1: 800, A2: 1200, B1: 1800, B2: 2200, C1: 1800, C2: 600 };
+const STATUSES = ['New', 'Learning', 'Familiar', 'Strong', 'Mastered'];
+const POS_LIST = ['noun', 'verb', 'adjective', 'adverb', 'preposition', 'conjunction',
+  'pronoun', 'determiner', 'phrasal verb', 'idiom', 'interjection', 'phrase'];
+const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
+const BASE_CATEGORIES = ['Everyday', 'Speaking', 'Listening', 'Academic', 'IELTS', 'Work',
+  'Technology', 'Science', 'Education', 'Travel', 'People', 'Emotions', 'Food', 'Health',
+  'Society', 'Business', 'Politics', 'Nature', 'Time', 'Money', 'Relationships',
+  'Movies/TV', 'Internet', 'Phrasal Verbs', 'Idioms', 'Academic Vocabulary'];
+
+/* ---------- STATE ---------- */
+const State = {
+  words: [], days: {}, quizzes: [], customCategories: [],
+  settings: { ...DEFAULT_SETTINGS },
+  view: 'dashboard', review: null, quiz: null,
+  calMonth: todayISO().slice(0, 7), selectedDay: null,
+  filters: { q: '', status: 'All', level: 'All', category: 'All', range: 'All', sort: 'recent' }
+};
+const IDX = { addedByDate: {}, reviewedByDate: {}, activeDates: [], dateToLearnDay: {} };
+
+function buildIndexes() {
+  const added = {}, reviewed = {}, activeSet = new Set();
+  for (const w of State.words) {
+    added[w.dateAdded] = (added[w.dateAdded] || 0) + 1;
+    activeSet.add(w.dateAdded);
+    for (const h of (w.history || [])) {
+      reviewed[h.d] = (reviewed[h.d] || 0) + 1;
+      activeSet.add(h.d);
+    }
+  }
+  for (const d of Object.values(State.days)) if (d.skipped) activeSet.delete(d.date);
+  IDX.addedByDate = added;
+  IDX.reviewedByDate = reviewed;
+  IDX.activeDates = [...activeSet].sort();
+  const map = {};
+  IDX.activeDates.forEach((d, i) => { map[d] = i + 1; });
+  IDX.dateToLearnDay = map;
+}
+function learningDay(date) {
+  const day = State.days[date];
+  if (day?.skipped) return null;
+  if (IDX.dateToLearnDay[date]) return IDX.dateToLearnDay[date];
+  let c = 0;
+  for (const d of IDX.activeDates) { if (d < date) c++; else break; }
+  return c + 1;
+}
+const weekNumberOf = date => Math.max(1, Math.floor(daysBetween(State.settings.programStart, date) / 7) + 1);
+const monthNumberOf = date => {
+  const s = parseISO(State.settings.programStart), d = parseISO(date);
+  return Math.max(1, (d.getFullYear() - s.getFullYear()) * 12 + (d.getMonth() - s.getMonth()) + 1);
+};
+const getDay = date => State.days[date] || { date, skipped: false, note: '' };
+
+/* ---------- DICTIONARY API ---------- */
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) =>
+  setTimeout(() => rej(new Error('timeout')), ms))]);
+
+async function fetchDictionary(word) {
+  try {
+    const r = await withTimeout(
+      fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word)),
+      8000
+    );
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!Array.isArray(j) || !j[0]) return null;
+    const entry = j[0];
+    const meanings = [], examples = [], synonyms = [], antonyms = [];
+    let pos = '';
+    (entry.meanings || []).slice(0, 5).forEach(m => {
+      if (!pos) pos = m.partOfSpeech || '';
+      (m.definitions || []).slice(0, 3).forEach(d => {
+        if (d.definition) meanings.push(d.definition);
+        if (d.example) examples.push(d.example);
+      });
+      (m.synonyms || []).slice(0, 6).forEach(s => synonyms.push(s));
+      (m.antonyms || []).slice(0, 6).forEach(a => antonyms.push(a));
+    });
+    let ipa = '';
+    (entry.phonetics || []).forEach(p => { if (p.text && !ipa) ipa = p.text; });
+    if (!ipa && entry.phonetic) ipa = entry.phonetic;
+    return {
+      pos: pos || 'noun',
+      meanings: [...new Set(meanings)].slice(0, 4),
+      example: examples[0] || '',
+      synonyms: [...new Set(synonyms)].slice(0, 6),
+      antonyms: [...new Set(antonyms)].slice(0, 6),
+      ipa: ipa || ''
+    };
+  } catch (e) { return null; }
+}
+
+/* ---------- STATS ---------- */
+const liveWords = () => State.words.filter(w => !w.deleted);
+function isWeak(w) {
+  if (!w.history?.length) return false;
+  const fails = w.failCount || 0;
+  const step = w.srs?.step ?? 0;
+  if (fails >= 3 && step < 4) return true;
+  if (fails >= 2 && step < 3) return true;
+  if ((w.confidence || 3) <= 2 && fails >= 1) return true;
+  return false;
+}
+const isStrong = w => (w.srs?.step ?? 0) >= 4 && (w.confidence || 3) >= 4 && !isWeak(w);
+function statusOf(w) {
+  if (w.statusLocked && w.status) return w.status;
+  const step = w.srs?.step ?? 0, conf = w.confidence || 3;
+  if (step >= 5 && conf >= 4) return 'Mastered';
+  if (step >= 4) return 'Strong';
+  if (step >= 2) return 'Familiar';
+  if (step >= 1 || (w.history || []).length) return 'Learning';
+  return 'New';
+}
+const dueWords = (date = todayISO()) =>
+  liveWords().filter(w => w.srs?.nextReview && w.srs.nextReview <= date);
+
+const Stats = {
+  total: () => liveWords().length,
+  byLevel() {
+    const o = {}; LEVELS.forEach(l => o[l] = 0);
+    liveWords().forEach(w => { if (o[w.level] !== undefined) o[w.level]++; });
+    return o;
+  },
+  byStatus() {
+    const o = {}; STATUSES.forEach(s => o[s] = 0);
+    liveWords().forEach(w => o[statusOf(w)]++);
+    return o;
+  },
+  families() {
+    const s = new Set();
+    liveWords().forEach(w => s.add(w.wordLower));
+    return s.size;
+  },
+  weak: () => liveWords().filter(isWeak),
+  strong: () => liveWords().filter(isStrong),
+  mastered: () => liveWords().filter(w => statusOf(w) === 'Mastered'),
+  active: () => liveWords().filter(w => w.active).length,
+  passive: () => liveWords().filter(w => w.passive).length,
+  addedOn: d => IDX.addedByDate[d] || 0,
+  reviewedOn: d => IDX.reviewedByDate[d] || 0,
+  rangeAdded(from, to) { let n = 0; for (let d = from; d <= to; d = addDays(d, 1)) n += IDX.addedByDate[d] || 0; return n; },
+  rangeReviewed(from, to) { let n = 0; for (let d = from; d <= to; d = addDays(d, 1)) n += IDX.reviewedByDate[d] || 0; return n; },
+  studyDays: () => IDX.activeDates.length,
+  skippedDays: () => Object.values(State.days).filter(d => d.skipped).length,
+  daysElapsed: () => Math.max(0, daysBetween(State.settings.programStart, todayISO())) + 1,
+  currentStreak() {
+    let streak = 0, d = todayISO();
+    if (!(IDX.addedByDate[d] || IDX.reviewedByDate[d])) d = addDays(d, -1);
+    while (true) {
+      if (State.days[d]?.skipped) break;
+      if (!(IDX.addedByDate[d] || IDX.reviewedByDate[d])) break;
+      streak++;
+      d = addDays(d, -1);
+      if (daysBetween(State.settings.programStart, d) < -400) break;
+    }
+    return streak;
+  },
+  longestStreak() {
+    const dates = [...new Set([...Object.keys(IDX.addedByDate), ...Object.keys(IDX.reviewedByDate)])]
+      .filter(d => !State.days[d]?.skipped).sort();
+    let best = 0, cur = 0, prev = null;
+    for (const d of dates) {
+      if (prev && daysBetween(prev, d) === 1) cur++; else cur = 1;
+      best = Math.max(best, cur);
+      prev = d;
+    }
+    return best;
+  },
+  avgPerStudyDay() { const s = this.studyDays(); return s ? this.total() / s : 0; },
+  avgPerCalendarDay() { const d = this.daysElapsed(); return d ? this.total() / d : 0; },
+  quizAccuracy() {
+    if (!State.quizzes.length) return null;
+    const t = State.quizzes.reduce((a, q) => a + q.total, 0);
+    const c = State.quizzes.reduce((a, q) => a + q.correct, 0);
+    return t ? (c / t) * 100 : null;
+  },
+  completionRate() {
+    const t = this.daysElapsed() * State.settings.dailyTarget;
+    return t ? clamp((this.total() / t) * 100, 0, 100) : 0;
+  },
+  dueToday: () => dueWords().length
+};
+
+/* ---------- UI PRIMITIVES ---------- */
+function toast(msg, kind = '', ms = 2400) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.textContent = msg;
+  $('#toastRoot').appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .3s'; el.style.opacity = '0';
+    setTimeout(() => el.remove(), 320);
+  }, ms);
+}
+function openModal({ title, body, footer = '', small = false, onMount }) {
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="modal ${small ? 'sm' : ''}" role="dialog" aria-modal="true">
+      <div class="modal-head"><h3>${esc(title)}</h3><button class="x" data-close aria-label="Close">×</button></div>
+      <div class="modal-body">${body}</div>
+      ${footer ? `<div class="modal-foot">${footer}</div>` : ''}
+    </div>`;
+  $('#modalRoot').appendChild(ov);
+  const close = () => ov.remove();
+  ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('[data-close]')) close(); });
+  const onKey = e => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+  if (onMount) onMount(ov, close);
+  return { el: ov, close };
+}
+function confirmModal(title, msg, onYes, yesLabel = 'Confirm', danger = true) {
+  openModal({
+    title, small: true,
+    body: `<p style="font-size:14px;line-height:1.65;color:var(--tx2)">${msg}</p>`,
+    footer: `<button class="btn ghost" data-close>Cancel</button>
+             <button class="btn ${danger ? 'bad' : ''}" id="cfmYes">${esc(yesLabel)}</button>`,
+    onMount(el, close) { $('#cfmYes', el).onclick = () => { close(); onYes(); }; }
+  });
+}
+let speechOk = 'speechSynthesis' in window;
+function speak(text, rate = 0.92) {
+  if (!speechOk) { toast('Speech not supported in this browser', 'warn'); return; }
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(String(text));
+    u.lang = 'en-US'; u.rate = rate; u.pitch = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const en = voices.find(v => /en[-_]US/i.test(v.lang)) || voices.find(v => /^en/i.test(v.lang));
+    if (en) u.voice = en;
+    window.speechSynthesis.speak(u);
+  } catch (e) { console.warn(e); }
+}
+if (speechOk) { try { window.speechSynthesis.getVoices(); } catch { } }
+
+/* ---------- NAVIGATION ---------- */
+const NAV = [
+  ['dashboard', 'Dashboard', '▦'], ['today', 'Today', '☀'],
+  ['add', 'Add Words', '＋'], ['vocab', 'Vocabulary', '☰'],
+  ['review', 'Review', '↻'], ['quiz', 'Quiz', '?'],
+  ['calendar', 'Calendar', '▤'], ['progress', 'Progress', '◔'],
+  ['weak', 'Weak Words', '⚠'], ['roadmap', 'Roadmap', '⌗'],
+  ['sync', 'Backup & Sync', '⇅'], ['settings', 'Settings', '⚙']
+];
+function renderNav() {
+  const due = Stats.dueToday();
+  $('#sidebar').innerHTML = `
+    <div class="brand">
+      <div class="logo">S</div>
+      <div><h1>SandVoc</h1><small>Vocabulary System</small></div>
+    </div>
+    ${NAV.map(([id, label, ico]) => `
+      <button class="nav-item ${State.view === id ? 'on' : ''}" data-nav="${id}">
+        <span class="ico">${ico}</span><span>${label}</span>
+        ${id === 'review' && due ? `<span class="badge">${due}</span>` : ''}
+      </button>`).join('')}
+    <div class="side-foot">
+      <div>${num(Stats.total())} / ${num(State.settings.totalGoal)} words</div>
+      <div style="margin-top:2px">${fmtPct(pct(Stats.total(), State.settings.totalGoal))} of goal</div>
+    </div>`;
+  const bnav = [['dashboard', 'Home', '▦'], ['today', 'Today', '☀'], ['add', 'Add', '＋'],
+    ['review', 'Review', '↻'], ['more', 'More', '⋯']];
+  $('#bnav').innerHTML = bnav.map(([id, label, ico]) => `
+    <button data-nav="${id}" class="${State.view === id ? 'on' : ''}">
+      <span class="ico">${ico}</span><span>${label}</span>
+      ${id === 'review' && due ? `<span class="badge">${due}</span>` : ''}
+    </button>`).join('');
+  $$('[data-nav]').forEach(b => b.onclick = () => {
+    const v = b.dataset.nav;
+    if (v === 'more') { openMoreSheet(); return; }
+    go(v);
+  });
+}
+function openMoreSheet() {
+  openModal({
+    title: 'All sections', small: true,
+    body: `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${NAV.map(([id, label, ico]) => `
+        <button class="btn ghost" data-more="${id}" style="justify-content:flex-start">${ico}&nbsp;${label}</button>`).join('')}
+    </div>`,
+    onMount(el, close) { $$('[data-more]', el).forEach(b => b.onclick = () => { close(); go(b.dataset.more); }); }
+  });
+}
+function go(view) {
+  State.view = view;
+  renderNav();
+  render();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- VIEWS ---------- */
+const Views = {};
+
+/* --- DASHBOARD --- */
+Views.dashboard = () => {
+  const total = Stats.total(), goal = State.settings.totalGoal;
+  const pctGoal = pct(total, goal);
+  const st = Stats.byStatus(), lv = Stats.byLevel();
+  const today = todayISO();
+  const todayAdded = Stats.addedOn(today);
+  const target = State.settings.dailyTarget;
+  const lday = learningDay(today);
+  const due = Stats.dueToday();
+  const weekStart = startOfWeekISO(today);
+  const weekAdded = Stats.rangeAdded(weekStart, today);
+  const monthAdded = Stats.rangeAdded(today.slice(0, 8) + '01', today);
+  const streak = Stats.currentStreak(), longest = Stats.longestStreak();
+  const remaining = Math.max(0, goal - total);
+  const acc = Stats.quizAccuracy();
+
+  return `
+  <div class="topbar">
+    <div>
+      <h2>Dashboard</h2>
+      <div class="sub">${prettyDate(today)} · Learning Day ${lday ?? '—'} · Week ${weekNumberOf(today)} · Month ${monthNumberOf(today)}</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn ghost sm" data-act="quick-add">＋ Quick Add</button>
+    <button class="btn sm" data-act="start-review">↻ Review ${due ? `(${due})` : ''}</button>
+  </div>
+  <div class="card">
+    <div class="bar-lbl">
+      <span><b style="color:var(--tx)">Overall Vocabulary Goal</b></span>
+      <span class="mono"><b style="color:var(--tx)">${num(total)}</b> / ${num(goal)} · ${fmtPct(pctGoal)}</span>
+    </div>
+    <div class="bar" style="height:14px"><i style="width:${clamp(pctGoal, 0, 100)}%"></i></div>
+    <div class="flexrow mt-s" style="font-size:12px;color:var(--tx3)">
+      <span>${num(remaining)} words remaining</span><span>·</span>
+      <span>≈ ${Math.ceil(remaining / Math.max(1, target))} study days at ${target}/day</span>
+    </div>
+  </div>
+  <div class="grid g4 mt">
+    <div class="stat accent"><div class="k">Total Words</div><div class="v">${num(total)}</div><div class="d">${Stats.families()} unique</div></div>
+    <div class="stat pur"><div class="k">Mastered</div><div class="v">${num(st.Mastered)}</div><div class="d">${fmtPct(pct(st.Mastered, total || 1))} of vocabulary</div></div>
+    <div class="stat warn"><div class="k">Weak Words</div><div class="v">${num(Stats.weak().length)}</div><div class="d">need extra attention</div></div>
+    <div class="stat ${due ? 'bad' : 'ok'}"><div class="k">Due Today</div><div class="v">${num(due)}</div><div class="d">${due ? 'ready for review' : 'all caught up'}</div></div>
+  </div>
+  <div class="grid g2 mt">
+    <div class="card">
+      <h3 class="sec" style="margin-top:0">Today</h3>
+      <div class="bar-lbl"><span>New words</span><span class="mono"><b style="color:var(--tx)">${todayAdded}</b> / ${target}</span></div>
+      <div class="bar ${todayAdded >= target ? 'ok' : todayAdded > 0 ? '' : 'warn'}"><i style="width:${clamp(pct(todayAdded, target), 0, 100)}%"></i></div>
+      <div class="kv mt"><span class="k">Reviewed today</span><span class="v">${Stats.reviewedOn(today)}</span></div>
+      <div class="kv"><span class="k">Status</span><span class="v">${dayStatusLabel(today)}</span></div>
+      <div class="kv"><span class="k">Completion</span><span class="v">${fmtPct(pct(todayAdded, target))}</span></div>
+      <div class="flexrow mt">
+        <button class="btn sm" data-act="go-today">Open Today</button>
+        <button class="btn ghost sm" data-act="quick-add">Add Word</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="sec" style="margin-top:0">Streak & Consistency</h3>
+      <div class="grid g2" style="gap:10px">
+        <div class="stat" style="padding:11px"><div class="k">Current</div><div class="v">${streak}<small> d</small></div></div>
+        <div class="stat" style="padding:11px"><div class="k">Longest</div><div class="v">${longest}<small> d</small></div></div>
+      </div>
+      <div class="kv mt"><span class="k">Calendar days elapsed</span><span class="v">${Stats.daysElapsed()}</span></div>
+      <div class="kv"><span class="k">Study days completed</span><span class="v">${Stats.studyDays()}</span></div>
+      <div class="kv"><span class="k">Days skipped</span><span class="v">${Stats.skippedDays()}</span></div>
+      <div class="kv"><span class="k">Completion rate</span><span class="v">${fmtPct(Stats.completionRate())}</span></div>
+    </div>
+  </div>
+  <div class="grid g3 mt">
+    <div class="stat"><div class="k">This Week</div><div class="v">${num(weekAdded)}</div><div class="d">since ${shortDate(weekStart)}</div></div>
+    <div class="stat"><div class="k">This Month</div><div class="v">${num(monthAdded)}</div><div class="d">${shortDate(today.slice(0, 8) + '01')} → today</div></div>
+    <div class="stat"><div class="k">Avg / Study Day</div><div class="v">${Stats.avgPerStudyDay().toFixed(1)}</div><div class="d">${Stats.avgPerCalendarDay().toFixed(1)} per calendar day</div></div>
+  </div>
+  <h3 class="sec">CEFR Progress</h3>
+  <div class="card">
+    ${LEVELS.map(l => {
+      const have = lv[l], want = LEVEL_PLAN[l], p = clamp(pct(have, want), 0, 100);
+      return `<div style="margin-bottom:12px">
+        <div class="bar-lbl"><span><span class="tag t-${l}">${l}</span></span>
+        <span class="mono">${num(have)} / ${num(want)} · ${fmtPct(p)}</span></div>
+        <div class="bar thin"><i style="width:${p}%"></i></div>
+      </div>`;
+    }).join('')}
+  </div>
+  <h3 class="sec">Learning Status Breakdown</h3>
+  <div class="grid g5">
+    ${STATUSES.map(s => `<div class="stat" style="padding:12px">
+      <div class="k">${s}</div><div class="v" style="font-size:22px">${num(st[s])}</div>
+      <div class="bar thin" style="margin-top:6px"><i style="width:${pct(st[s], total || 1)}%"></i></div>
+    </div>`).join('')}
+  </div>
+  <div class="grid g3 mt">
+    <div class="stat"><div class="k">Active Vocabulary</div><div class="v">${num(Stats.active())}</div><div class="d">words you can produce</div></div>
+    <div class="stat"><div class="k">Passive Vocabulary</div><div class="v">${num(Stats.passive())}</div><div class="d">words you recognise</div></div>
+    <div class="stat"><div class="k">Quiz Accuracy</div><div class="v">${acc === null ? '—' : acc.toFixed(0) + '%'}</div><div class="d">${State.quizzes.length} sessions</div></div>
+  </div>
+  <h3 class="sec">Goals</h3>
+  <div class="card">
+    <div class="kv"><span class="k">Vocabulary goal</span><span class="v">${num(goal)} words</span></div>
+    <div class="kv"><span class="k">Daily goal</span><span class="v">${target} words / study day</span></div>
+    <div class="kv"><span class="k">IELTS target</span><span class="v">${State.settings.ieltsGoal}</span></div>
+    <div class="kv"><span class="k">Target CEFR</span><span class="v">${State.settings.targetCefr}</span></div>
+    <div class="kv"><span class="k">Program start</span><span class="v">${prettyDate(State.settings.programStart)}</span></div>
+    <div class="kv"><span class="k">Program month</span><span class="v">Month ${monthNumberOf(today)} of 14</span></div>
+  </div>`;
+};
+function dayStatusLabel(date) {
+  const d = getDay(date);
+  if (d.skipped) return 'Skipped';
+  const added = Stats.addedOn(date), target = State.settings.dailyTarget;
+  if (added === 0 && date < todayISO()) return 'Missed';
+  if (added === 0) return 'Not Started';
+  if (added >= target) return 'Completed';
+  if (added >= target * 0.5) return 'Partially Completed';
+  return 'In Progress';
+}
+Views.dashboard.bind = () => {
+  $$('[data-act]').forEach(b => b.onclick = () => {
+    const a = b.dataset.act;
+    if (a === 'quick-add') { go('add'); setTimeout(() => $('#quickInput')?.focus(), 60); }
+    if (a === 'start-review') go('review');
+    if (a === 'go-today') go('today');
+  });
+};
+
+/* --- TODAY --- */
+Views.today = () => {
+  const today = todayISO();
+  const lday = learningDay(today);
+  const target = State.settings.dailyTarget;
+  const words = liveWords().filter(w => w.dateAdded === today);
+  const reviewed = Stats.reviewedOn(today);
+  const d = getDay(today);
+  const p = pct(words.length, target);
+  return `
+  <div class="topbar">
+    <div>
+      <h2>Today</h2>
+      <div class="sub">${prettyDate(today)} · Learning Day ${lday ?? '—'} · Week ${weekNumberOf(today)} · Month ${monthNumberOf(today)}</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" data-act="add">＋ Add Word</button>
+  </div>
+  ${d.skipped ? `<div class="card" style="border-color:var(--bad)">
+      <b>This day is marked as skipped.</b>
+      <div class="tx3 mt-s" style="font-size:13px">Skipped days are not counted as learning days.</div>
+      <button class="btn ghost sm mt" data-act="unskip">Un-skip this day</button>
+    </div>` : ''}
+  <div class="grid g4">
+    <div class="stat accent"><div class="k">Target</div><div class="v">${target}</div><div class="d">new words today</div></div>
+    <div class="stat"><div class="k">Added</div><div class="v">${words.length}<small>/${target}</small></div><div class="d">${fmtPct(p)} complete</div></div>
+    <div class="stat"><div class="k">Reviewed</div><div class="v">${reviewed}</div><div class="d">cards today</div></div>
+    <div class="stat ${p >= 100 ? 'ok' : 'warn'}"><div class="k">Status</div><div class="v" style="font-size:17px;padding-top:5px">${dayStatusLabel(today)}</div><div class="d">due now: ${Stats.dueToday()}</div></div>
+  </div>
+  <div class="card mt">
+    <div class="bar-lbl"><span>Today's progress</span><span class="mono">${fmtPct(p)}</span></div>
+    <div class="bar ${p >= 100 ? 'ok' : ''}" style="height:12px"><i style="width:${clamp(p, 0, 100)}%"></i></div>
+    ${p >= 100 ? `<div class="mt-s" style="color:var(--ok);font-size:13px;font-weight:650">✓ Daily target reached.</div>`
+      : `<div class="mt-s tx3" style="font-size:13px">${target - words.length} more to reach today's target.</div>`}
+  </div>
+  <h3 class="sec">Words added today (${words.length})</h3>
+  ${words.length ? `<div class="grid" style="gap:11px">${words.map(w => wordCardHTML(w)).join('')}</div>`
+      : `<div class="empty"><div class="e">📖</div><h4>No words added yet today</h4>
+         <p>Add your first word to begin today's session. Everything is dated automatically.</p>
+         <button class="btn" data-act="add">＋ Add your first word</button></div>`}
+  <div class="flexrow mt" style="justify-content:center">
+    ${!d.skipped && words.length === 0 ? `<button class="btn ghost sm" data-act="skip">Mark today as skipped</button>` : ''}
+  </div>`;
+};
+Views.today.bind = () => {
+  $$('[data-act]').forEach(b => b.onclick = () => {
+    const a = b.dataset.act;
+    if (a === 'add') openWordEditor(null);
+    if (a === 'skip') markSkipped(todayISO(), true);
+    if (a === 'unskip') markSkipped(todayISO(), false);
+  });
+  bindWordCards();
+};
+
+/* --- ADD WORDS --- */
+Views.add = () => `
+  <div class="topbar"><div><h2>Add Words</h2>
+    <div class="sub">Dates and study days are recorded automatically.</div></div></div>
+
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Quick Add</h3>
+    <p class="tx3" style="font-size:13px;margin-bottom:10px">
+      Type a word and press <b>Enter</b>. SandVoc looks it up online and fills in meaning, pronunciation, part of speech, example, synonyms and antonyms — all editable afterwards. Works fully offline too.
+    </p>
+    <div class="flexrow">
+      <input id="quickInput" class="inp" style="flex:1;min-width:200px" placeholder="e.g. resilient" autocomplete="off" spellcheck="false">
+      <button class="btn" id="quickBtn">Add</button>
+    </div>
+    <div id="quickStatus" class="hint"></div>
+    <div class="chips mt-s">
+      <span class="chip ${State.settings.autoFetch ? 'on' : ''}" id="quickFetchMode">
+        ${State.settings.autoFetch ? '🌐 Auto-fetch enabled' : '⚡ Offline mode'}
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Bulk Add</h3>
+    <p class="tx3" style="font-size:13px;margin-bottom:10px">
+      Paste multiple words. Duplicates are detected automatically.
+    </p>
+    <textarea id="bulkText" class="inp" style="min-height:130px" placeholder="abandon&#10;ability&#10;accept&#10;achieve&#10;adapt"></textarea>
+    <div class="grid g3 mt-s">
+      <div><label class="lbl">CEFR level</label>
+        <select id="bulkLevel" class="inp">${LEVELS.map(l => `<option value="${l}" ${l === State.settings.defaultLevel ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <div><label class="lbl">Category</label>
+        <select id="bulkCat" class="inp"><option value="">— none —</option>${allCategories().map(c => `<option>${esc(c)}</option>`).join('')}</select></div>
+      <div><label class="lbl">Date added</label>
+        <input type="date" id="bulkDate" class="inp" value="${todayISO()}"></div>
+    </div>
+    <label class="lbl">Dictionary data</label>
+    <div class="chips">
+      <span class="chip on" id="bulkModeOffline">⚡ Offline — instant</span>
+      <span class="chip" id="bulkModeOnline">🌐 Fetch from internet</span>
+    </div>
+    <p class="hint" id="bulkModeHint">Words save instantly without meaning data. Fastest option.</p>
+    <div class="flexrow mt">
+      <button class="btn" id="bulkBtn">Add all words</button>
+      <button class="btn ghost" id="bulkCancel" style="display:none">Cancel</button>
+      <span class="hint" id="bulkStatus"></span>
+    </div>
+    <div id="bulkProgress" style="display:none;margin-top:14px">
+      <div class="bar thin"><i id="bulkBar" style="width:0%"></i></div>
+      <div id="bulkLog" class="fetchlog"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Detailed Entry</h3>
+    <p class="tx3" style="font-size:13px;margin-bottom:10px">
+      Full editor for multiple meanings, collocations, word forms, your own sentence and notes.
+    </p>
+    <button class="btn ghost" id="fullBtn">Open full editor</button>
+  </div>
+
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Demo Data</h3>
+    <p class="tx3" style="font-size:13px;margin-bottom:10px">
+      Load 10 example words to explore. Tagged as demo and removable at any time.
+    </p>
+    <div class="flexrow">
+      <button class="btn ghost sm" id="loadDemo">Load demo words</button>
+      <button class="btn ghost sm" id="removeDemo">Remove demo words</button>
+    </div>
+  </div>`;
+
+Views.add.bind = () => {
+  const qi = $('#quickInput');
+  const statusEl = $('#quickStatus');
+
+  const doQuick = async () => {
+    const raw = qi.value.trim();
+    if (!raw) return;
+    const w = raw.replace(/[^A-Za-z' -]/g, '').trim();
+    if (!w) { toast('Please enter a valid English word', 'bad'); return; }
+    const lower = w.toLowerCase();
+    if (liveWords().some(x => x.wordLower === lower)) {
+      toast(`"${w}" already exists`, 'warn');
+      qi.value = '';
+      return;
+    }
+    qi.value = '';
+    qi.disabled = true;
+    if (State.settings.autoFetch && navigator.onLine) {
+      statusEl.innerHTML = '<span class="spin"></span> Looking up definition…';
+    } else {
+      statusEl.textContent = 'Saving…';
+    }
+    const r = await addWordQuick(w, todayISO());
+    qi.disabled = false;
+    statusEl.textContent = '';
+    qi.focus();
+    render(); renderNav();
+  };
+  $('#quickBtn').onclick = doQuick;
+  qi.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doQuick(); } });
+
+  $('#quickFetchMode').onclick = async () => {
+    State.settings.autoFetch = !State.settings.autoFetch;
+    await saveSettings();
+    render();
+  };
+
+  /* Bulk mode */
+  let bulkMode = 'offline';
+  const modeOff = $('#bulkModeOffline'), modeOn = $('#bulkModeOnline'), modeHint = $('#bulkModeHint');
+  modeOff.onclick = () => {
+    bulkMode = 'offline';
+    modeOff.classList.add('on'); modeOn.classList.remove('on');
+    modeHint.textContent = 'Words save instantly without meaning data. Fastest option, works offline.';
+  };
+  modeOn.onclick = () => {
+    bulkMode = 'online';
+    modeOn.classList.add('on'); modeOff.classList.remove('on');
+    modeHint.innerHTML = 'Each word is looked up on <b>dictionaryapi.dev</b> — meaning, part of speech, IPA, example, synonyms and antonyms are filled automatically. Live log below.';
+  };
+
+  $('#bulkBtn').onclick = async () => {
+    const raw = $('#bulkText').value;
+    const list = raw.split(/[\n,;]+/).flatMap(l => l.trim().split(/\s+/))
+      .map(s => s.replace(/[^A-Za-z' -]/g, '').trim()).filter(Boolean);
+    if (!list.length) { toast('Nothing to add', 'bad'); return; }
+
+    const level = $('#bulkLevel').value;
+    const cat = $('#bulkCat').value;
+    const date = $('#bulkDate').value || todayISO();
+
+    const seen = new Set();
+    const unique = list.filter(w => {
+      const k = w.toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
+    });
+    const existing = new Set(liveWords().map(w => w.wordLower));
+    const fresh = unique.filter(w => !existing.has(w.toLowerCase()));
+    const dupes = unique.length - fresh.length;
+
+    if (!fresh.length) {
+      toast(`All ${unique.length} word${unique.length === 1 ? '' : 's'} already exist`, 'warn');
+      return;
+    }
+
+    if (bulkMode === 'offline') {
+      let n = 0;
+      for (const w of fresh) {
+        await addWordQuick(w, date, { level, category: cat, silent: true, fetch: false });
+        n++;
+      }
+      $('#bulkText').value = '';
+      buildIndexes();
+      toast(`Added ${n} word${n === 1 ? '' : 's'}${dupes ? `, ${dupes} skipped` : ''}`, 'ok', 3200);
+      render(); renderNav();
+      return;
+    }
+
+    if (!navigator.onLine) {
+      toast('You are offline — switch to Offline mode', 'bad', 3200);
+      return;
+    }
+
+    const prog = $('#bulkProgress'), bar = $('#bulkBar'), log = $('#bulkLog');
+    const btn = $('#bulkBtn'), cancelBtn = $('#bulkCancel'), statusEl2 = $('#bulkStatus');
+    prog.style.display = 'block';
+    log.innerHTML = '';
+    btn.disabled = true;
+    cancelBtn.style.display = 'inline-flex';
+    let aborted = false;
+    cancelBtn.onclick = () => { aborted = true; cancelBtn.disabled = true; cancelBtn.textContent = 'Stopping…'; };
+
+    const results = new Array(fresh.length).fill(undefined);
+    let done = 0, next = 0;
+    const CONCURRENCY = 4;
+
+    const logRow = (word, state, detail) => {
+      const color = state === 'ok' ? 'var(--ok)' : state === 'miss' ? 'var(--tx3)' : 'var(--bad)';
+      const icon = state === 'ok' ? '✓' : state === 'miss' ? '○' : '✕';
+      const row = document.createElement('div');
+      row.className = 'fl';
+      row.innerHTML = `<span class="ic" style="color:${color}">${icon}</span>
+        <span class="wd">${esc(word)}</span>
+        <span class="dt">${esc(detail || '')}</span>`;
+      log.appendChild(row);
+      log.scrollTop = log.scrollHeight;
+    };
+
+    const worker = async () => {
+      while (next < fresh.length && !aborted) {
+        const i = next++;
+        const w = fresh[i];
+        let data = null;
+        try { data = await fetchDictionary(w); } catch { data = null; }
+        results[i] = data;
+        done++;
+        bar.style.width = clamp(pct(done, fresh.length), 0, 100) + '%';
+        statusEl2.textContent = `${done} / ${fresh.length}`;
+        if (data && data.meanings && data.meanings.length) {
+          logRow(w, 'ok', data.meanings[0].slice(0, 70));
+        } else if (data) {
+          logRow(w, 'ok', 'partial data');
+        } else {
+          logRow(w, 'miss', 'not found — saved without meaning');
+        }
+      }
+    };
+
+    const t0 = Date.now();
+    await Promise.all(Array.from({ length: Math.min(CONCURRENCY, fresh.length) }, worker));
+    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+
+    let saved = 0, enriched = 0;
+    const missing = [];
+    for (let i = 0; i < fresh.length; i++) {
+      if (results[i] === undefined && aborted) { missing.push(fresh[i]); continue; }
+      const w = fresh[i], d = results[i] || {};
+      if (results[i]) enriched++; else missing.push(w);
+      const rec = normalizeWordRecord({
+        id: uid(), word: w, pos: d.pos || '', level: level || State.settings.defaultLevel,
+        meanings: d.meanings || [], example: d.example || '',
+        synonyms: d.synonyms || [], antonyms: d.antonyms || [],
+        ipa: d.ipa || '', categories: cat ? [cat] : [],
+        dateAdded: date, difficulty: 'Medium',
+        srs: { step: 0, nextReview: addDays(date, 1), last: null }, history: []
+      });
+      await saveWord(rec, true);
+      saved++;
+    }
+
+    btn.disabled = false;
+    cancelBtn.style.display = 'none';
+    cancelBtn.disabled = false;
+    cancelBtn.textContent = 'Cancel';
+    statusEl2.textContent = '';
+    buildIndexes();
+    toast(`Saved ${saved} word${saved === 1 ? '' : 's'} in ${elapsed}s — ${enriched} enriched` +
+      (missing.length ? `, ${missing.length} not found` : '') +
+      (dupes ? ` (${dupes} duplicate${dupes === 1 ? '' : 's'} skipped)` : ''), 'ok', 6000);
+    render(); renderNav();
+
+    if (missing.length) {
+      setTimeout(() => {
+        const ta = $('#bulkText');
+        if (ta) { ta.value = missing.join('\n'); ta.focus(); }
+      }, 80);
+    }
+  };
+
+  $('#fullBtn').onclick = () => openWordEditor(null);
+  $('#loadDemo').onclick = loadDemoData;
+  $('#removeDemo').onclick = () => confirmModal('Remove demo words',
+    'This deletes all words tagged as demo data. Your own words are not affected.',
+    async () => { await removeDemoData(); toast('Demo words removed', 'ok'); });
+};
+
+/* --- VOCABULARY --- */
+Views.vocab = () => {
+  const f = State.filters;
+  let list = liveWords();
+  if (f.q) {
+    const q = f.q.toLowerCase();
+    list = list.filter(w => [
+      w.word, w.pos, w.level, w.example, w.notes, w.mySentence,
+      (w.meanings || []).join(' '), (w.collocations || []).join(' '),
+      (w.synonyms || []).join(' '), (w.antonyms || []).join(' '),
+      (w.commonUses || []).join(' '), (w.categories || []).join(' '),
+      (w.forms || []).join(' '), w.dateAdded
+    ].join(' ').toLowerCase().includes(q));
+  }
+  if (f.status !== 'All') {
+    if (f.status === 'Weak') list = list.filter(isWeak);
+    else list = list.filter(w => statusOf(w) === f.status);
+  }
+  if (f.level !== 'All') list = list.filter(w => w.level === f.level);
+  if (f.category !== 'All') list = list.filter(w => (w.categories || []).includes(f.category));
+
+  const today = todayISO();
+  if (f.range === 'Week') { const s = startOfWeekISO(today); list = list.filter(w => w.dateAdded >= s); }
+  if (f.range === 'Month') list = list.filter(w => monthKey(w.dateAdded) === monthKey(today));
+  if (f.range === 'Today') list = list.filter(w => w.dateAdded === today);
+
+  const sorters = {
+    recent: (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
+    oldest: (a, b) => (a.createdAt || 0) - (b.createdAt || 0),
+    alpha: (a, b) => a.wordLower.localeCompare(b.wordLower),
+    level: (a, b) => LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level) || a.wordLower.localeCompare(b.wordLower),
+    weak: (a, b) => (b.failCount || 0) - (a.failCount || 0)
+  };
+  list.sort(sorters[f.sort] || sorters.recent);
+  const cats = allCategories();
+
+  return `
+  <div class="topbar">
+    <div><h2>Vocabulary</h2><div class="sub">${num(list.length)} of ${num(Stats.total())} words shown</div></div>
+    <div class="spacer"></div>
+    <button class="btn ghost sm" data-act="export-csv">Export CSV</button>
+    <button class="btn" data-act="add">＋ Add Word</button>
+  </div>
+  <div class="card">
+    <input id="vSearch" class="inp" placeholder="Search word, meaning, collocation, category, date…" value="${esc(f.q)}">
+    <div class="chips mt-s">
+      ${['All', 'New', 'Learning', 'Familiar', 'Strong', 'Mastered', 'Weak'].map(s =>
+        `<span class="chip ${f.status === s ? 'on' : ''}" data-f="status" data-v="${s}">${s}</span>`).join('')}
+    </div>
+    <div class="chips mt-s">
+      ${['All', ...LEVELS].map(s => `<span class="chip ${f.level === s ? 'on' : ''}" data-f="level" data-v="${s}">${s}</span>`).join('')}
+      <span style="width:12px"></span>
+      ${['All', 'Today', 'Week', 'Month'].map(s => `<span class="chip ${f.range === s ? 'on' : ''}" data-f="range" data-v="${s}">${s === 'All' ? 'Any time' : s}</span>`).join('')}
+    </div>
+    <div class="chips mt-s">
+      <span class="chip ${f.category === 'All' ? 'on' : ''}" data-f="category" data-v="All">All categories</span>
+      ${cats.map(c => `<span class="chip ${f.category === c ? 'on' : ''}" data-f="category" data-v="${esc(c)}">${esc(c)}</span>`).join('')}
+    </div>
+    <div class="flexrow mt-s">
+      <select class="inp" style="max-width:190px" data-f="sort">
+        <option value="recent" ${f.sort === 'recent' ? 'selected' : ''}>Newest first</option>
+        <option value="oldest" ${f.sort === 'oldest' ? 'selected' : ''}>Oldest first</option>
+        <option value="alpha" ${f.sort === 'alpha' ? 'selected' : ''}>A → Z</option>
+        <option value="level" ${f.sort === 'level' ? 'selected' : ''}>CEFR level</option>
+        <option value="weak" ${f.sort === 'weak' ? 'selected' : ''}>Weakest first</option>
+      </select>
+      <button class="btn ghost sm" data-act="clear-filters">Clear filters</button>
+    </div>
+  </div>
+  <div class="grid mt" style="gap:11px">
+    ${list.length ? list.map(w => wordCardHTML(w, true)).join('')
+      : `<div class="empty"><div class="e">🔍</div><h4>No words match</h4><p>Try removing a filter or searching for something else.</p></div>`}
+  </div>`;
+};
+Views.vocab.bind = () => {
+  const s = $('#vSearch');
+  let t;
+  s.oninput = () => {
+    clearTimeout(t);
+    t = setTimeout(() => {
+      State.filters.q = s.value; render();
+      const n = $('#vSearch');
+      if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); }
+    }, 260);
+  };
+  $$('[data-f]').forEach(el => {
+    const ev = el.tagName === 'SELECT' ? 'change' : 'click';
+    el.addEventListener(ev, () => {
+      const k = el.dataset.f;
+      State.filters[k] = el.tagName === 'SELECT' ? el.value : el.dataset.v;
+      render();
+    });
+  });
+  $$('[data-act]').forEach(b => b.onclick = () => {
+    if (b.dataset.act === 'add') openWordEditor(null);
+    if (b.dataset.act === 'clear-filters') {
+      State.filters = { q: '', status: 'All', level: 'All', category: 'All', range: 'All', sort: 'recent' };
+      render();
+    }
+    if (b.dataset.act === 'export-csv') exportCSV();
+  });
+  bindWordCards();
+};
+
+/* --- WORD CARD --- */
+function wordCardHTML(w, showActions = true) {
+  const st = statusOf(w);
+  const meanings = (w.meanings || []).filter(Boolean);
+  return `
+  <div class="wcard" data-wid="${w.id}">
+    <div class="head">
+      <div style="flex:1;min-width:0">
+        <div class="flexrow" style="gap:9px">
+          <span class="w">${esc(w.word)}</span>
+          ${w.ipa ? `<span class="pron">${esc(w.ipa)}</span>` : ''}
+          <button class="btn ghost xs" data-speak="${esc(w.word)}" title="Pronounce">🔊</button>
+          ${w.isDemo ? `<span class="tag" style="background:var(--card2);color:var(--tx3)">DEMO</span>` : ''}
+        </div>
+        <div class="meta">
+          <span class="tag t-${w.level}">${w.level}</span>
+          <span class="st st-${st}">${st}</span>
+          ${w.pos ? `<span class="tx3" style="font-size:11.5px">${esc(w.pos)}</span>` : ''}
+          <span class="tx3" style="font-size:11.5px">· Day ${learningDay(w.dateAdded) ?? '—'} · ${shortDate(w.dateAdded)}</span>
+        </div>
+      </div>
+    </div>
+    ${meanings.length ? meanings.map((m, i) => `
+      <div class="mline"><span class="n">${i + 1}.</span><span class="t">${esc(m)}</span></div>`).join('') : ''}
+    ${w.example ? `<div class="ex">"${esc(w.example)}"</div>` : ''}
+    ${(w.collocations || []).length ? `<div class="coll">${w.collocations.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}
+    ${(w.commonUses || []).length ? `<div class="mline"><span class="n">▪</span><span class="t"><b>Common uses:</b> ${w.commonUses.map(esc).join(' · ')}</span></div>` : ''}
+    ${(w.synonyms || []).length ? `<div class="coll syn">${w.synonyms.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}
+    ${(w.antonyms || []).length ? `<div class="coll ant">${w.antonyms.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}
+    ${(w.forms || []).length ? `<div class="mline"><span class="n">◇</span><span class="t"><b>Word forms:</b> ${w.forms.map(esc).join(' · ')}</span></div>` : ''}
+    ${w.mySentence ? `<div class="mline"><span class="n">✎</span><span class="t"><b>My sentence:</b> ${esc(w.mySentence)}</span></div>` : ''}
+    ${w.notes ? `<div class="mline"><span class="n">✱</span><span class="t">${esc(w.notes)}</span></div>` : ''}
+    ${(w.categories || []).length ? `<div class="chips" style="margin-top:9px">${w.categories.map(c => `<span class="chip" style="cursor:default">${esc(c)}</span>`).join('')}</div>` : ''}
+    <div class="flexrow mt-s" style="font-size:11.5px;color:var(--tx3)">
+      <span>Reviews: ${(w.history || []).length}</span><span>·</span>
+      <span>Fails: ${w.failCount || 0}</span><span>·</span>
+      <span>Confidence: ${w.confidence || 3}/5</span><span>·</span>
+      <span>Next: ${w.srs?.nextReview ? shortDate(w.srs.nextReview) : '—'}</span>
+      ${w.active ? '<span>·</span><span style="color:var(--ok)">Active</span>' : ''}
+    </div>
+    ${showActions ? `<div class="flexrow mt-s">
+      <button class="btn ghost xs" data-edit="${w.id}">Edit</button>
+      <button class="btn ghost xs" data-review="${w.id}">Review now</button>
+      <button class="btn ghost xs" data-del="${w.id}" style="color:var(--bad)">Delete</button>
+    </div>` : ''}
+  </div>`;
+}
+function bindWordCards(root = document) {
+  $$('[data-speak]', root).forEach(b => b.onclick = e => { e.stopPropagation(); speak(b.dataset.speak); });
+  $$('[data-edit]', root).forEach(b => b.onclick = () => openWordEditor(State.words.find(w => w.id === b.dataset.edit)));
+  $$('[data-del]', root).forEach(b => b.onclick = () => {
+    const w = State.words.find(x => x.id === b.dataset.del);
+    if (!w) return;
+    confirmModal('Delete word', `Delete <b>${esc(w.word)}</b> and all its review history?`,
+      async () => { await hardDeleteWord(w.id); toast('Word deleted', 'ok'); });
+  });
+  $$('[data-review]', root).forEach(b => b.onclick = () => {
+    const w = State.words.find(x => x.id === b.dataset.review);
+    if (!w) return;
+    State.review = { queue: [w.id], i: 0, revealed: false, session: { again: 0, hard: 0, good: 0, easy: 0 } };
+    go('review');
+  });
+}
+
+/* --- REVIEW --- */
+Views.review = () => {
+  const today = todayISO();
+  const due = dueWords(today);
+  const r = State.review;
+  if (!r || !r.queue.length) {
+    const upcoming = {};
+    liveWords().forEach(w => {
+      const d = w.srs?.nextReview;
+      if (d && d > today) upcoming[d] = (upcoming[d] || 0) + 1;
+    });
+    const next7 = Object.entries(upcoming).filter(([d]) => d <= addDays(today, 7)).sort();
+    return `
+    <div class="topbar"><div><h2>Review Today</h2>
+      <div class="sub">${prettyDate(today)} · spaced repetition</div></div></div>
+    <div class="grid g4">
+      <div class="stat ${due.length ? 'bad' : 'ok'}"><div class="k">Due Today</div><div class="v">${due.length}</div></div>
+      <div class="stat"><div class="k">Reviewed Today</div><div class="v">${Stats.reviewedOn(today)}</div></div>
+      <div class="stat warn"><div class="k">Weak Words</div><div class="v">${Stats.weak().length}</div></div>
+      <div class="stat pur"><div class="k">Strong Words</div><div class="v">${Stats.strong().length}</div></div>
+    </div>
+    ${due.length ? `
+      <div class="card mt center">
+        <h3 style="font-size:18px;font-weight:730;margin-bottom:6px">${due.length} word${due.length === 1 ? '' : 's'} ready for review</h3>
+        <p class="tx3" style="font-size:13.5px;margin-bottom:16px">Weak words are prioritised first.</p>
+        <button class="btn" id="startReview" style="min-width:190px">Start Review Session</button>
+      </div>` : `
+      <div class="empty"><div class="e">✓</div><h4>Nothing due right now</h4>
+        <p>New reviews will appear here according to your spaced-repetition schedule.</p></div>`}
+    <h3 class="sec">Upcoming (next 7 days)</h3>
+    <div class="card">
+      ${next7.length ? next7.map(([d, n]) => `
+        <div class="kv"><span class="k">${prettyDate(d)}</span><span class="v">${n} word${n === 1 ? '' : 's'}</span></div>`).join('')
+        : `<div class="tx3" style="font-size:13px">No scheduled reviews in the next 7 days.</div>`}
+    </div>
+    <h3 class="sec">Review Schedule</h3>
+    <div class="card">
+      <p class="tx3" style="font-size:13px">Intervals: ${State.settings.srsIntervals.join(' → ')} days</p>
+      <p class="hint">Rate each card honestly. "Again" resets the interval; "Easy" jumps ahead.</p>
+    </div>`;
+  }
+  const w = State.words.find(x => x.id === r.queue[r.i]);
+  if (!w) { State.review = null; return Views.review(); }
+  const total = r.queue.length, pos = r.i + 1;
+  return `
+  <div class="topbar">
+    <div><h2>Review</h2><div class="sub">Card ${pos} of ${total}</div></div>
+    <div class="spacer"></div>
+    <button class="btn ghost sm" id="endReview">End session</button>
+  </div>
+  <div class="bar thin mb"><i style="width:${pct(pos - 1, total)}%"></i></div>
+  <div class="flash">
+    <div class="w">${esc(w.word)}</div>
+    ${w.ipa ? `<div class="ipa">${esc(w.ipa)}</div>` : ''}
+    <button class="btn ghost sm" data-speak="${esc(w.word)}">🔊 Pronounce</button>
+    ${r.revealed ? `
+      <div style="width:100%;max-width:620px;margin-top:14px;text-align:left">
+        ${w.pos ? `<div class="mline"><span class="n">•</span><span class="t"><b>${esc(w.pos)}</b> · ${w.level}</span></div>` : ''}
+        ${(w.meanings || []).map((m, i) => `<div class="mline"><span class="n">${i + 1}.</span><span class="t">${esc(m)}</span></div>`).join('')}
+        ${w.example ? `<div class="ex">"${esc(w.example)}"</div>` : ''}
+        ${(w.collocations || []).length ? `<div class="coll">${w.collocations.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}
+        ${(w.synonyms || []).length ? `<div class="coll syn">${w.synonyms.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}
+      </div>` : ''}
+  </div>
+  <div class="mt" style="max-width:680px;margin-inline:auto">
+    ${!r.revealed ? `
+      <button class="btn block" id="reveal" style="min-height:52px;font-size:15px">Show Meaning</button>`
+      : `
+      <div class="center tx3" style="font-size:12.5px;margin-bottom:9px">How well did you remember this?</div>
+      <div class="grid g4" style="gap:9px">
+        <button class="btn bad" data-rate="again" style="flex-direction:column;min-height:60px">Again<div style="font-size:10.5px;opacity:.85;font-weight:600">forgot</div></button>
+        <button class="btn warn" data-rate="hard" style="flex-direction:column;min-height:60px">Hard<div style="font-size:10.5px;opacity:.85;font-weight:600">difficult</div></button>
+        <button class="btn ok" data-rate="good" style="flex-direction:column;min-height:60px">Good<div style="font-size:10.5px;opacity:.85;font-weight:600">remembered</div></button>
+        <button class="btn" data-rate="easy" style="flex-direction:column;min-height:60px">Easy<div style="font-size:10.5px;opacity:.85;font-weight:600">instant</div></button>
+      </div>`}
+  </div>`;
+};
+Views.review.bind = () => {
+  const r = State.review;
+  $$('[data-speak]').forEach(b => b.onclick = () => speak(b.dataset.speak));
+  const sr = $('#startReview');
+  if (sr) sr.onclick = () => {
+    const due = dueWords();
+    due.sort((a, b) => (isWeak(b) ? 1 : 0) - (isWeak(a) ? 1 : 0) ||
+      (a.srs.nextReview || '').localeCompare(b.srs.nextReview || ''));
+    State.review = { queue: due.map(w => w.id), i: 0, revealed: false, session: { again: 0, hard: 0, good: 0, easy: 0 } };
+    render();
+  };
+  const er = $('#endReview');
+  if (er) er.onclick = () => { State.review = null; render(); };
+  const rev = $('#reveal');
+  if (rev) rev.onclick = () => {
+    State.review.revealed = true;
+    if (State.settings.autoSpeech) {
+      const w = State.words.find(x => x.id === r.queue[r.i]);
+      if (w) speak(w.word);
+    }
+    render();
+  };
+  $$('[data-rate]').forEach(b => b.onclick = async () => {
+    const w = State.words.find(x => x.id === r.queue[r.i]);
+    if (!w) return;
+    await applyReview(w, b.dataset.rate);
+    r.i++;
+    r.revealed = false;
+    if (r.i >= r.queue.length) {
+      toast('Session complete', 'ok', 2400);
+      State.review = null;
+    }
+    render();
+    renderNav();
+  });
+};
+
+/* --- QUIZ --- */
+Views.quiz = () => {
+  const q = State.quiz;
+  if (!q) {
+    const acc = Stats.quizAccuracy();
+    return `
+    <div class="topbar"><div><h2>Quiz</h2><div class="sub">Active recall practice</div></div></div>
+    <div class="grid g3">
+      <div class="stat"><div class="k">Sessions</div><div class="v">${State.quizzes.length}</div></div>
+      <div class="stat"><div class="k">Accuracy</div><div class="v">${acc === null ? '—' : acc.toFixed(0) + '%'}</div></div>
+      <div class="stat"><div class="k">Questions</div><div class="v">${State.quizzes.reduce((a, x) => a + x.total, 0)}</div></div>
+    </div>
+    <div class="card mt">
+      <h3 class="sec" style="margin-top:0">Start a quiz</h3>
+      <div class="grid g2">
+        <div>
+          <label class="lbl">Question types</label>
+          <div class="chips" id="qtypes">
+            ${[['word2mean', 'Word → Meaning'], ['mean2word', 'Meaning → Word'], ['fill', 'Fill in the Blank'], ['listen', 'Listening']]
+        .map(([k, l]) => `<span class="chip ${k === 'word2mean' ? 'on' : ''}" data-qt="${k}">${l}</span>`).join('')}
+          </div>
+          <p class="hint">Select one or more.</p>
+        </div>
+        <div>
+          <label class="lbl">Source pool</label>
+          <select class="inp" id="qpool">
+            <option value="all">All words</option>
+            <option value="weak">Weak words only</option>
+            <option value="due">Due for review</option>
+            <option value="recent">Recently added (30 days)</option>
+            <option value="level">Specific CEFR level…</option>
+          </select>
+          <div id="qlevelWrap" style="display:none">
+            <label class="lbl">CEFR level</label>
+            <select class="inp" id="qlevel">${LEVELS.map(l => `<option ${l === State.settings.defaultLevel ? 'selected' : ''}>${l}</option>`).join('')}</select>
+          </div>
+          <label class="lbl">Number of questions</label>
+          <select class="inp" id="qcount">${[5, 10, 15, 20, 30].map(n => `<option ${n === 10 ? 'selected' : ''}>${n}</option>`).join('')}</select>
+        </div>
+      </div>
+      <button class="btn mt" id="startQuiz">Start Quiz</button>
+    </div>`;
+  }
+  if (q.done) {
+    const p = pct(q.correct, q.total);
+    return `
+    <div class="topbar"><div><h2>Quiz Results</h2></div></div>
+    <div class="card center">
+      <div style="font-size:52px;font-weight:820;letter-spacing:-2px;color:${p >= 80 ? 'var(--ok)' : p >= 50 ? 'var(--warn)' : 'var(--bad)'}">${p.toFixed(0)}%</div>
+      <div class="tx2" style="font-size:15px;font-weight:600">${q.correct} correct out of ${q.total}</div>
+      <div class="mt"><button class="btn" id="quizAgain">New Quiz</button></div>
+    </div>
+    <h3 class="sec">Review your answers</h3>
+    <div class="grid" style="gap:9px">
+      ${q.log.map(l => `<div class="row" style="border-color:${l.ok ? 'var(--ok)' : 'var(--bad)'}">
+        <div class="grow"><div class="ttl">${esc(l.word)}</div>
+        <div class="sub">Your answer: ${esc(l.given || '—')} · Correct: ${esc(l.answer)}</div></div>
+        <div style="font-size:19px">${l.ok ? '✓' : '✕'}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  const c = q.items[q.i];
+  return `
+  <div class="topbar">
+    <div><h2>Quiz</h2><div class="sub">Question ${q.i + 1} of ${q.total} · ${q.correct} correct</div></div>
+    <div class="spacer"></div>
+    <button class="btn ghost sm" id="quitQuiz">Quit</button>
+  </div>
+  <div class="bar thin mb"><i style="width:${pct(q.i, q.total)}%"></i></div>
+  <div class="card">
+    <div class="tx3" style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">${esc(c.instruction)}</div>
+    <div style="font-size:${c.big ? '27px' : '18px'};font-weight:${c.big ? '780' : '600'};letter-spacing:-.5px;line-height:1.45;margin-bottom:16px">
+      ${esc(c.prompt)}
+    </div>
+    ${c.speak ? `<button class="btn ghost sm mb" data-speak="${esc(c.speak)}">🔊 Play audio</button>` : ''}
+    ${c.options ? `
+      <div id="qopts">${c.options.map((o, i) => `<button class="qopt" data-opt="${i}">${esc(o)}</button>`).join('')}</div>`
+      : `
+      <div class="flexrow">
+        <input class="inp" id="qtext" style="flex:1;min-width:200px" placeholder="Type your answer…" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn" id="qsubmit">Check</button>
+      </div>`}
+    <div id="qfeedback" class="mt" style="font-size:14px;font-weight:600"></div>
+    <div id="qnextWrap" class="mt" style="display:none"><button class="btn" id="qnext">Next question →</button></div>
+  </div>`;
+};
+Views.quiz.bind = () => {
+  const q = State.quiz;
+  if (!q) {
+    $('#qpool').onchange = e => $('#qlevelWrap').style.display = e.target.value === 'level' ? 'block' : 'none';
+    $$('[data-qt]').forEach(c => c.onclick = () => c.classList.toggle('on'));
+    $('#startQuiz').onclick = () => startQuiz();
+    return;
+  }
+  if (q.done) { $('#quizAgain').onclick = () => { State.quiz = null; render(); }; return; }
+  $('#quitQuiz').onclick = () => { State.quiz = null; render(); };
+  $$('[data-speak]').forEach(b => b.onclick = () => speak(b.dataset.speak));
+  const c = q.items[q.i];
+
+  const finishAnswer = (given, ok) => {
+    $('#qfeedback').innerHTML = ok
+      ? `<span style="color:var(--ok)">✓ Correct</span>`
+      : `<span style="color:var(--bad)">✕ Correct answer: ${esc(c.answer)}</span>`;
+    q.log.push({ word: c.word, given, answer: c.answer, ok });
+    if (ok) q.correct++;
+    $('#qnextWrap').style.display = 'block';
+    const nb = $('#qnext');
+    nb.focus();
+    nb.onclick = () => {
+      q.i++;
+      if (q.i >= q.items.length) {
+        q.done = true;
+        State.quizzes.push({ id: uid(), date: todayISO(), total: q.total, correct: q.correct, ts: Date.now() });
+        DB.put('meta', { key: 'quizzesCache', value: State.quizzes.slice(-200) });
+      }
+      render();
+    };
+    const w = State.words.find(x => x.id === c.wordId);
+    if (w) {
+      if (!ok) { w.failCount = (w.failCount || 0) + 1; w.quizFails = (w.quizFails || 0) + 1; }
+      else w.quizCorrect = (w.quizCorrect || 0) + 1;
+      w.updatedAt = Date.now();
+      saveWord(w, true);
+    }
+  };
+
+  if (c.options) {
+    $$('#qopts .qopt').forEach((b, i) => b.onclick = () => {
+      $$('#qopts .qopt').forEach(x => x.disabled = true);
+      const ok = i === c.correctIndex;
+      b.classList.add(ok ? 'correct' : 'wrong');
+      if (!ok) $$('#qopts .qopt')[c.correctIndex].classList.add('correct');
+      finishAnswer(c.options[i], ok);
+    });
+  } else {
+    const inp = $('#qtext');
+    inp.focus();
+    const submit = () => {
+      const val = inp.value.trim();
+      if (!val) return;
+      const ok = norm(val) === norm(c.answer);
+      inp.disabled = true;
+      $('#qsubmit').disabled = true;
+      inp.style.borderColor = ok ? 'var(--ok)' : 'var(--bad)';
+      finishAnswer(val, ok);
+    };
+    $('#qsubmit').onclick = submit;
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+  }
+};
+const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+
+function startQuiz() {
+  const types = $$('[data-qt].on').map(c => c.dataset.qt);
+  if (!types.length) { toast('Select at least one question type', 'bad'); return; }
+  const pool = $('#qpool').value;
+  const count = parseInt($('#qcount').value, 10);
+  const lvl = $('#qlevel') ? $('#qlevel').value : null;
+
+  let src = liveWords().filter(w => (w.meanings || []).length && w.word);
+  if (pool === 'weak') src = src.filter(isWeak);
+  else if (pool === 'due') src = dueWords();
+  else if (pool === 'recent') src = src.filter(w => w.dateAdded >= addDays(todayISO(), -30));
+  else if (pool === 'level') src = src.filter(w => w.level === lvl);
+
+  if (src.length < 4) { toast('Need at least 4 words with meanings', 'bad'); return; }
+
+  const items = [];
+  const shuffled = [...src].sort(() => Math.random() - 0.5);
+  for (let n = 0; n < count * 3 && items.length < count; n++) {
+    const w = shuffled[n % shuffled.length];
+    const type = types[n % types.length];
+    const it = makeQuestion(w, type, src);
+    if (it) items.push(it);
+  }
+  if (!items.length) { toast('Could not generate questions', 'bad'); return; }
+  State.quiz = { items, i: 0, correct: 0, total: items.length, log: [], done: false };
+  render();
+}
+function makeQuestion(w, type, pool) {
+  const meaning = (w.meanings || [])[0];
+  if (!meaning) return null;
+  const distract = [...pool].filter(x => x.id !== w.id).sort(() => Math.random() - 0.5);
+  const pick = n => distract.slice(0, n);
+  switch (type) {
+    case 'word2mean': {
+      const wrong = pick(3).map(x => (x.meanings || [])[0]).filter(Boolean);
+      if (wrong.length < 3) return null;
+      const opts = [meaning, ...wrong].sort(() => Math.random() - 0.5);
+      return { wordId: w.id, word: w.word, big: true, instruction: 'What does this word mean?',
+        prompt: w.word, speak: w.word, options: opts, correctIndex: opts.indexOf(meaning), answer: meaning };
+    }
+    case 'mean2word': {
+      const wrong = pick(3).map(x => x.word);
+      if (wrong.length < 3) return null;
+      const opts = [w.word, ...wrong].sort(() => Math.random() - 0.5);
+      return { wordId: w.id, word: w.word, big: false, instruction: 'Which word matches this meaning?',
+        prompt: meaning, options: opts, correctIndex: opts.indexOf(w.word), answer: w.word };
+    }
+    case 'fill': {
+      if (!w.example || !w.example.toLowerCase().includes(w.word.toLowerCase())) return null;
+      const re = new RegExp(w.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      const blanked = w.example.replace(re, '________');
+      const wrong = pick(3).map(x => x.word);
+      if (wrong.length < 3) return null;
+      const opts = [w.word, ...wrong].sort(() => Math.random() - 0.5);
+      return { wordId: w.id, word: w.word, big: false, instruction: 'Fill in the blank',
+        prompt: blanked, options: opts, correctIndex: opts.indexOf(w.word), answer: w.word };
+    }
+    case 'listen': {
+      const wrong = pick(3).map(x => x.word);
+      if (wrong.length < 3) return null;
+      const opts = [w.word, ...wrong].sort(() => Math.random() - 0.5);
+      return { wordId: w.id, word: w.word, big: false, instruction: 'Listen and choose the word you hear',
+        prompt: '🔊 Press play, then choose the word.', speak: w.word,
+        options: opts, correctIndex: opts.indexOf(w.word), answer: w.word };
+    }
+    default: return null;
+  }
+}
+
+/* --- CALENDAR --- */
+Views.calendar = () => {
+  const [y, m] = State.calMonth.split('-').map(Number);
+  const first = new Date(y, m - 1, 1);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const startDow = (first.getDay() + 6) % 7;
+  const today = todayISO();
+  const target = State.settings.dailyTarget;
+  let cells = '';
+  for (let i = 0; i < startDow; i++) cells += `<div class="cday empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso = `${State.calMonth}-${String(d).padStart(2, '0')}`;
+    const added = Stats.addedOn(iso), rev = Stats.reviewedOn(iso);
+    const day = State.days[iso];
+    let cls = '';
+    if (day?.skipped) cls = 'skip';
+    else if (added >= target) cls = 'done';
+    else if (added > 0) cls = 'part';
+    if (iso === today) cls += ' today';
+    if (iso > today) cls += ' future';
+    cells += `<button class="cday ${cls}" data-day="${iso}" title="${prettyDate(iso)}">
+      <span class="n">${d}</span>
+      ${added ? `<span class="p">${added}w</span>` : rev ? `<span class="p">${rev}r</span>` : ''}
+    </button>`;
+  }
+  const sel = State.selectedDay;
+  let detail = '';
+  if (sel) {
+    const words = liveWords().filter(w => w.dateAdded === sel);
+    const rev = Stats.reviewedOn(sel);
+    const added = words.length;
+    const d = getDay(sel);
+    detail = `
+    <div class="card">
+      <div class="flexrow mb">
+        <div><b style="font-size:15px">${prettyDate(sel)}</b>
+        <div class="tx3" style="font-size:12px">Learning Day ${learningDay(sel) ?? '—'} · Week ${weekNumberOf(sel)} · Month ${monthNumberOf(sel)}</div></div>
+        <div class="spacer"></div>
+        <span class="st st-${d.skipped ? 'New' : 'Learning'}">${dayStatusLabel(sel)}</span>
+      </div>
+      <div class="grid g3">
+        <div class="stat" style="padding:11px"><div class="k">Added</div><div class="v" style="font-size:20px">${added}/${target}</div></div>
+        <div class="stat" style="padding:11px"><div class="k">Reviews</div><div class="v" style="font-size:20px">${rev}</div></div>
+        <div class="stat" style="padding:11px"><div class="k">Completion</div><div class="v" style="font-size:20px">${fmtPct(pct(added, target), 0)}</div></div>
+      </div>
+      <div class="bar thin mt"><i style="width:${clamp(pct(added, target), 0, 100)}%"></i></div>
+      <div class="flexrow mt">
+        ${d.skipped
+        ? `<button class="btn ghost sm" data-unskip="${sel}">Un-skip day</button>`
+        : `<button class="btn ghost sm" data-skip="${sel}">Mark as skipped</button>`}
+      </div>
+      ${words.length ? `<h3 class="sec">Words learned</h3>
+        <div class="grid" style="gap:8px">${words.map(w => `<div class="row"><div class="grow">
+          <div class="ttl">${esc(w.word)}</div>
+          <div class="sub">${esc((w.meanings || [])[0] || '')}</div></div>
+          <span class="tag t-${w.level}">${w.level}</span></div>`).join('')}</div>` : ''}
+    </div>`;
+  }
+  return `
+  <div class="topbar">
+    <div><h2>Calendar</h2><div class="sub">Calendar days vs learning days tracked separately</div></div>
+    <div class="spacer"></div>
+    <button class="btn ghost sm" data-mv="-1">‹ Prev</button>
+    <button class="btn ghost sm" data-mv="0">This month</button>
+    <button class="btn ghost sm" data-mv="1">Next ›</button>
+  </div>
+  <div class="card">
+    <div class="center mb"><b style="font-size:16px">${first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</b></div>
+    <div class="cal">
+      ${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => `<div class="dow">${d}</div>`).join('')}
+      ${cells}
+    </div>
+    <div class="flexrow mt" style="font-size:11.5px;color:var(--tx3);gap:14px">
+      <span>● Completed</span><span style="color:var(--warn)">● Partial</span>
+      <span style="color:var(--bad)">● Skipped</span><span>● No activity</span>
+    </div>
+  </div>
+  ${detail}`;
+};
+Views.calendar.bind = () => {
+  $$('[data-day]').forEach(b => b.onclick = () => { State.selectedDay = b.dataset.day; render(); });
+  $$('[data-skip]').forEach(b => b.onclick = () => markSkipped(b.dataset.skip, true));
+  $$('[data-unskip]').forEach(b => b.onclick = () => markSkipped(b.dataset.unskip, false));
+  $$('[data-mv]').forEach(b => b.onclick = () => {
+    const v = b.dataset.mv;
+    if (v === '0') { State.calMonth = todayISO().slice(0, 7); render(); return; }
+    const [y, m] = State.calMonth.split('-').map(Number);
+    const d = new Date(y, m - 1 + Number(v), 1);
+    State.calMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    render();
+  });
+};
+
+/* --- PROGRESS --- */
+Views.progress = () => {
+  const today = todayISO();
+  const weekStart = startOfWeekISO(today);
+  const monthStart = today.slice(0, 8) + '01';
+  const target = State.settings.dailyTarget;
+  const wTarget = target * 7;
+  const wAdded = Stats.rangeAdded(weekStart, today);
+  const wRev = Stats.rangeReviewed(weekStart, today);
+  const wStudy = IDX.activeDates.filter(d => d >= weekStart && d <= today).length;
+  const wSkip = Object.values(State.days).filter(d => d.skipped && d.date >= weekStart && d.date <= today).length;
+  const mTarget = target * 30;
+  const mAdded = Stats.rangeAdded(monthStart, today);
+  const mRev = Stats.rangeReviewed(monthStart, today);
+  const mStudy = IDX.activeDates.filter(d => d >= monthStart && d <= today).length;
+  const mSkip = Object.values(State.days).filter(d => d.skipped && d.date >= monthStart && d.date <= today).length;
+  const lv = Stats.byLevel();
+
+  const weeks = [];
+  for (let i = 7; i >= 0; i--) {
+    const s = addDays(weekStart, -i * 7);
+    const e = addDays(s, 6);
+    weeks.push({ s, n: Stats.rangeAdded(s, e > today ? today : e) });
+  }
+  const maxW = Math.max(1, ...weeks.map(w => w.n));
+
+  return `
+  <div class="topbar"><div><h2>Progress</h2><div class="sub">All figures computed from your actual records</div></div></div>
+  <h3 class="sec">Weekly Review — Week ${weekNumberOf(today)}</h3>
+  <div class="grid g4">
+    <div class="stat"><div class="k">Target</div><div class="v">${wTarget}</div></div>
+    <div class="stat accent"><div class="k">Added</div><div class="v">${wAdded}</div><div class="d">${fmtPct(pct(wAdded, wTarget))} complete</div></div>
+    <div class="stat"><div class="k">Reviews</div><div class="v">${wRev}</div></div>
+    <div class="stat warn"><div class="k">Weak Words</div><div class="v">${liveWords().filter(w => w.dateAdded >= weekStart && isWeak(w)).length}</div></div>
+  </div>
+  <div class="card mt">
+    <div class="bar-lbl"><span>Week ${weekNumberOf(today)} progress</span><span class="mono">${fmtPct(pct(wAdded, wTarget))}</span></div>
+    <div class="bar ${pct(wAdded, wTarget) >= 100 ? 'ok' : ''}"><i style="width:${clamp(pct(wAdded, wTarget), 0, 100)}%"></i></div>
+    <div class="grid g3 mt">
+      <div class="kv"><span class="k">Days studied</span><span class="v">${wStudy}</span></div>
+      <div class="kv"><span class="k">Days skipped</span><span class="v">${wSkip}</span></div>
+      <div class="kv"><span class="k">Avg / day</span><span class="v">${(wAdded / 7).toFixed(1)}</span></div>
+    </div>
+  </div>
+  <h3 class="sec">Monthly Review — Month ${monthNumberOf(today)}</h3>
+  <div class="grid g4">
+    <div class="stat"><div class="k">Monthly Target</div><div class="v">${mTarget}</div><div class="d">30 × ${target}</div></div>
+    <div class="stat accent"><div class="k">Words Learned</div><div class="v">${mAdded}</div><div class="d">${fmtPct(pct(mAdded, mTarget))}</div></div>
+    <div class="stat"><div class="k">Reviews</div><div class="v">${mRev}</div></div>
+    <div class="stat ok"><div class="k">Study Days</div><div class="v">${mStudy}</div><div class="d">${mSkip} skipped</div></div>
+  </div>
+  <div class="card mt">
+    <div class="kv"><span class="k">Average words / study day</span><span class="v">${(mAdded / Math.max(1, mStudy)).toFixed(1)}</span></div>
+    <div class="kv"><span class="k">Completion rate</span><span class="v">${fmtPct(pct(mAdded, mTarget))}</span></div>
+  </div>
+  <h3 class="sec">Weekly activity (last 8 weeks)</h3>
+  <div class="card">
+    <div style="display:flex;align-items:flex-end;gap:8px;height:150px">
+      ${weeks.map(w => `
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end">
+          <div style="font-size:10.5px;color:var(--tx3);font-weight:700">${w.n}</div>
+          <div style="width:100%;height:${(w.n / maxW) * 100}%;min-height:3px;background:linear-gradient(180deg,var(--ac),var(--pur));border-radius:6px 6px 3px 3px"></div>
+          <div style="font-size:9.5px;color:var(--tx3)">${shortDate(w.s)}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+  <h3 class="sec">CEFR Distribution</h3>
+  <div class="card">
+    ${LEVELS.map(l => {
+      const have = lv[l], want = LEVEL_PLAN[l];
+      return `<div style="margin-bottom:12px">
+        <div class="bar-lbl"><span><span class="tag t-${l}">${l}</span></span>
+        <span class="mono">${num(have)} / ${num(want)}</span></div>
+        <div class="bar thin"><i style="width:${clamp(pct(have, want), 0, 100)}%"></i></div>
+      </div>`;
+    }).join('')}
+  </div>
+  <h3 class="sec">Complete Statistics</h3>
+  <div class="card">
+    ${[
+      ['Total unique words', num(Stats.total())],
+      ['Words learned today', num(Stats.addedOn(today))],
+      ['Words learned this week', num(wAdded)],
+      ['Words learned this month', num(mAdded)],
+      ['Average words per study day', Stats.avgPerStudyDay().toFixed(2)],
+      ['Average words per calendar day', Stats.avgPerCalendarDay().toFixed(2)],
+      ['Current streak', Stats.currentStreak() + ' days'],
+      ['Longest streak', Stats.longestStreak() + ' days'],
+      ['Study days completed', num(Stats.studyDays())],
+      ['Days skipped', num(Stats.skippedDays())],
+      ['Calendar days elapsed', num(Stats.daysElapsed())],
+      ['Completion rate', fmtPct(Stats.completionRate())],
+      ['Mastered words', num(Stats.mastered().length)],
+      ['Weak words', num(Stats.weak().length)],
+      ['Strong words', num(Stats.strong().length)],
+      ['Words due for review', num(Stats.dueToday())],
+      ['Quiz accuracy', Stats.quizAccuracy() === null ? '—' : Stats.quizAccuracy().toFixed(1) + '%'],
+      ['Active vocabulary', num(Stats.active())],
+      ['Passive vocabulary', num(Stats.passive())],
+      ['Words remaining to goal', num(Math.max(0, State.settings.totalGoal - Stats.total()))]
+    ].map(([k, v]) => `<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
+  </div>`;
+};
+
+/* --- WEAK WORDS --- */
+Views.weak = () => {
+  const weak = Stats.weak().sort((a, b) => (b.failCount || 0) - (a.failCount || 0));
+  const strong = Stats.strong().sort((a, b) => (b.srs?.step || 0) - (a.srs?.step || 0));
+  return `
+  <div class="topbar">
+    <div><h2>Weak & Strong Words</h2><div class="sub">Automatically detected from review and quiz results</div></div>
+    <div class="spacer"></div>
+    ${weak.length ? `<button class="btn" id="practiceWeak">Practise ${weak.length} weak words</button>` : ''}
+  </div>
+  <div class="grid g3">
+    <div class="stat warn"><div class="k">Weak Words</div><div class="v">${weak.length}</div><div class="d">need attention</div></div>
+    <div class="stat ok"><div class="k">Strong Words</div><div class="v">${strong.length}</div><div class="d">well consolidated</div></div>
+    <div class="stat pur"><div class="k">Mastered</div><div class="v">${Stats.mastered().length}</div><div class="d">long-term retention</div></div>
+  </div>
+  <h3 class="sec">Weak words</h3>
+  ${weak.length ? `<div class="grid" style="gap:11px">
+      ${weak.map(w => `
+        <div class="wcard" data-wid="${w.id}">
+          <div class="head"><div style="flex:1">
+            <div class="flexrow" style="gap:8px">
+              <span class="w">${esc(w.word)}</span>
+              <button class="btn ghost xs" data-speak="${esc(w.word)}">🔊</button>
+              <span class="tag t-${w.level}">${w.level}</span>
+            </div>
+            <div class="meta">
+              <span class="tx3" style="font-size:11.5px">Fails: ${w.failCount || 0} · Reviews: ${(w.history || []).length} · Confidence: ${w.confidence || 3}/5</span>
+            </div>
+          </div></div>
+          ${(w.meanings || []).map((m, i) => `<div class="mline"><span class="n">${i + 1}.</span><span class="t">${esc(m)}</span></div>`).join('')}
+          ${w.example ? `<div class="ex">"${esc(w.example)}"</div>` : ''}
+          <div class="flexrow mt-s">
+            <button class="btn ghost xs" data-review="${w.id}">Review now</button>
+            <button class="btn ghost xs" data-edit="${w.id}">Edit</button>
+          </div>
+        </div>`).join('')}</div>`
+      : `<div class="empty"><div class="e">✓</div><h4>No weak words detected</h4>
+         <p>Words you repeatedly struggle with will appear here and be prioritised in future reviews.</p></div>`}
+  <h3 class="sec">Strong words (${strong.length})</h3>
+  <div class="card">
+    ${strong.length ? `<div class="flexrow">${strong.slice(0, 120).map(w => `<span class="chip" style="cursor:default">${esc(w.word)}</span>`).join('')}</div>`
+      : `<div class="tx3" style="font-size:13px">No strong words yet — keep reviewing.</div>`}
+  </div>`;
+};
+Views.weak.bind = () => {
+  bindWordCards();
+  const p = $('#practiceWeak');
+  if (p) p.onclick = () => {
+    const weak = Stats.weak();
+    State.review = { queue: weak.map(w => w.id).sort(() => Math.random() - 0.5), i: 0, revealed: false, session: { again: 0, hard: 0, good: 0, easy: 0 } };
+    go('review');
+  };
+};
+
+/* --- ROADMAP --- */
+const ROADMAP = [
+  { m: 1, level: 'Foundation', desc: 'Everyday verbs, common nouns, basic adjectives, essential connectors.', focus: 'A1' },
+  { m: 2, level: 'Foundation', desc: 'Common adverbs, basic phrasal verbs, everyday expressions.', focus: 'A1–A2' },
+  { m: 3, level: 'A2', desc: 'Travel, food, health, time and money vocabulary.', focus: 'A2' },
+  { m: 4, level: 'A2 / B1', desc: 'People, emotions, relationships. Building natural collocations.', focus: 'A2–B1' },
+  { m: 5, level: 'B1', desc: 'Work, education, society. Abstract nouns and discourse markers.', focus: 'B1' },
+  { m: 6, level: 'B1', desc: 'Speaking and listening vocabulary. Idioms in context.', focus: 'B1' },
+  { m: 7, level: 'B1 / B2', desc: 'Academic vocabulary begins. Argument and opinion language.', focus: 'B1–B2' },
+  { m: 8, level: 'B2', desc: 'IELTS reading and writing vocabulary. Formal register.', focus: 'B2' },
+  { m: 9, level: 'B2', desc: 'Business, politics, science. Advanced collocations.', focus: 'B2' },
+  { m: 10, level: 'B2', desc: 'Movies, TV, podcasts. Informal and idiomatic English.', focus: 'B2' },
+  { m: 11, level: 'B2 / C1', desc: 'Nuanced meaning, connotation, register differences.', focus: 'B2–C1' },
+  { m: 12, level: 'C1', desc: 'Academic and professional English. Precise word choice.', focus: 'C1' },
+  { m: 13, level: 'C1', desc: 'Low-frequency but high-value words. Literary and journalistic English.', focus: 'C1' },
+  { m: 14, level: 'C1 + Consolidation', desc: 'Full review cycle. Focus on weak words and active production.', focus: 'C1' }
+];
+Views.roadmap = () => {
+  const today = todayISO();
+  const curMonth = monthNumberOf(today);
+  const total = Stats.total(), goal = State.settings.totalGoal;
+  const perMonth = goal / 14;
+  return `
+  <div class="topbar"><div><h2>14-Month Roadmap</h2>
+    <div class="sub">Adapts to your real progress — never assumes you "should" know a word</div></div></div>
+  <div class="card">
+    <div class="bar-lbl"><span>Program progress</span><span class="mono">Month ${Math.min(14, curMonth)} of 14</span></div>
+    <div class="bar"><i style="width:${clamp(pct(curMonth, 14), 0, 100)}%"></i></div>
+    <div class="grid g3 mt">
+      <div class="kv"><span class="k">Your actual words</span><span class="v">${num(total)}</span></div>
+      <div class="kv"><span class="k">Goal</span><span class="v">${num(goal)}</span></div>
+      <div class="kv"><span class="k">Words remaining</span><span class="v">${num(Math.max(0, goal - total))}</span></div>
+    </div>
+  </div>
+  <div class="rm mt">
+    ${ROADMAP.map(r => {
+      const isCur = r.m === curMonth;
+      const isPast = r.m < curMonth;
+      const wordsInMonth = liveWords().filter(w => monthNumberOf(w.dateAdded) === r.m).length;
+      const targetForMonth = Math.round(perMonth);
+      return `
+      <div class="rmcard ${isCur ? 'cur' : ''}">
+        <div class="m">Month ${r.m}</div>
+        <div class="lv">${r.level}</div>
+        <div class="tx3" style="font-size:12px;line-height:1.5;min-height:52px">${r.desc}</div>
+        <div class="bar-lbl mt-s" style="font-size:11px"><span>Words</span><span class="mono">${num(wordsInMonth)} / ${num(targetForMonth)}</span></div>
+        <div class="bar thin"><i style="width:${clamp(pct(wordsInMonth, targetForMonth), 0, 100)}%"></i></div>
+        <div class="mt-s" style="font-size:11px;color:${isPast ? (wordsInMonth >= targetForMonth * 0.8 ? 'var(--ok)' : 'var(--warn)') : 'var(--tx3)'}">
+          ${isPast ? (wordsInMonth >= targetForMonth * 0.8 ? '✓ On track' : '⚠ Below target') : isCur ? '◉ In progress' : '○ Upcoming'}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+};
+
+/* --- BACKUP & SYNC --- */
+Views.sync = () => {
+  const last = State.settings.lastSync;
+  return `
+  <div class="topbar"><div><h2>Backup & Sync</h2>
+    <div class="sub">Your data lives on this device — export regularly</div></div></div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Data Status</h3>
+    <div class="kv"><span class="k">Storage engine</span><span class="v">${DB.fallback ? 'localStorage (fallback)' : 'IndexedDB'}</span></div>
+    <div class="kv"><span class="k">Words stored</span><span class="v">${num(State.words.length)}</span></div>
+    <div class="kv"><span class="k">Quiz sessions</span><span class="v">${num(State.quizzes.length)}</span></div>
+    <div class="kv"><span class="k">Connection</span><span class="v">${navigator.onLine ? '🟢 Online' : '⚪ Offline'}</span></div>
+    <div class="kv"><span class="k">Last synced</span><span class="v">${last ? new Date(last).toLocaleString() : 'Never'}</span></div>
+  </div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Export / Import</h3>
+    <p class="tx3" style="font-size:13px;margin-bottom:12px">
+      The JSON backup contains everything: words, meanings, collocations, review history, dates, settings, quiz results and streaks. Use it to move data between phone and laptop.
+    </p>
+    <div class="flexrow">
+      <button class="btn" id="expJson">⬇ Export full backup (JSON)</button>
+      <button class="btn ghost" id="expCsv">⬇ Export vocabulary (CSV)</button>
+      <button class="btn ghost" id="impBtn">⬆ Import file</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Move data between phone and laptop</h3>
+    <ol style="font-size:13.5px;line-height:1.85;color:var(--tx2);padding-left:20px">
+      <li>On the source device, tap <b>Export full backup (JSON)</b>.</li>
+      <li>Send the file to yourself (email, Drive, WhatsApp, AirDrop…).</li>
+      <li>On the other device, open with <b>Import file</b>.</li>
+      <li>Choose Merge or Replace when prompted.</li>
+    </ol>
+    <p class="hint" style="margin-top:8px">Manual, reliable, no account needed. This is not automatic sync.</p>
+  </div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">About cloud sync</h3>
+    <p class="tx3" style="font-size:13px">
+      A single HTML file cannot synchronise two devices by itself — that requires a server.
+      SandVoc is offline-first: everything works locally. To add cloud sync, you would connect a backend
+      (Supabase, Firebase, or your own REST endpoint) and merge by <code>updatedAt</code> timestamp.
+      Until then, use manual export/import above.
+    </p>
+  </div>`;
+};
+Views.sync.bind = () => {
+  $('#expJson').onclick = exportBackup;
+  $('#expCsv').onclick = exportCSV;
+  $('#impBtn').onclick = () => $('#fileIn').click();
+};
+
+/* --- SETTINGS --- */
+Views.settings = () => {
+  const s = State.settings;
+  const cats = allCategories();
+  return `
+  <div class="topbar"><div><h2>Settings</h2><div class="sub">All statistics recalculate automatically</div></div></div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Learning</h3>
+    <div class="grid g2">
+      <div><label class="lbl">Daily word target</label>
+        <input type="number" min="1" max="200" class="inp" id="sTarget" value="${s.dailyTarget}">
+        <div class="chips mt-s">
+          ${[10, 15, 20, 25, 30, 40].map(n => `<span class="chip ${s.dailyTarget === n ? 'on' : ''}" data-target="${n}">${n}/day</span>`).join('')}
+        </div>
+      </div>
+      <div><label class="lbl">Total vocabulary goal</label>
+        <input type="number" min="100" max="50000" step="100" class="inp" id="sGoal" value="${s.totalGoal}"></div>
+    </div>
+    <div class="grid g3 mt-s">
+      <div><label class="lbl">Default CEFR level</label>
+        <select class="inp" id="sLevel">${LEVELS.map(l => `<option ${l === s.defaultLevel ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <div><label class="lbl">IELTS target</label>
+        <input type="number" step="0.5" min="1" max="9" class="inp" id="sIelts" value="${s.ieltsGoal}"></div>
+      <div><label class="lbl">Target CEFR</label>
+        <select class="inp" id="sTargetCefr">${LEVELS.map(l => `<option ${l === s.targetCefr ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <label class="lbl">Program start date</label>
+    <input type="date" class="inp" id="sStart" value="${s.programStart}" style="max-width:220px">
+    <p class="hint">Changing this recalculates week and month numbers. Word dates are preserved.</p>
+  </div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Review & Spaced Repetition</h3>
+    <label class="lbl">Review intervals (days, comma-separated)</label>
+    <input class="inp" id="sIntervals" value="${s.srsIntervals.join(', ')}">
+    <p class="hint">Default: 1, 3, 7, 14, 30, 60, 120, 240 days.</p>
+  </div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Interface</h3>
+    <div class="grid g3">
+      <div><label class="lbl">Theme</label>
+        <select class="inp" id="sTheme">
+          <option value="dark" ${s.theme === 'dark' ? 'selected' : ''}>Dark</option>
+          <option value="light" ${s.theme === 'light' ? 'selected' : ''}>Light</option>
+        </select></div>
+      <div><label class="lbl">Font size</label>
+        <select class="inp" id="sFont">
+          ${[13, 14, 15, 16, 17, 18].map(n => `<option value="${n}" ${s.fontSize === n ? 'selected' : ''}>${n}px</option>`).join('')}
+        </select></div>
+      <div><label class="lbl">Automatic speech</label>
+        <select class="inp" id="sSpeech">
+          <option value="off" ${!s.autoSpeech ? 'selected' : ''}>Off</option>
+          <option value="on" ${s.autoSpeech ? 'selected' : ''}>Speak on reveal</option>
+        </select></div>
+    </div>
+    <label class="lbl" style="margin-top:14px">Dictionary lookup</label>
+    <select class="inp" id="sFetch" style="max-width:360px">
+      <option value="on" ${s.autoFetch ? 'selected' : ''}>Try online dictionary when adding words</option>
+      <option value="off" ${!s.autoFetch ? 'selected' : ''}>Always offline (never fetch)</option>
+    </select>
+  </div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">Categories</h3>
+    <div class="chips">${cats.map(c => `<span class="chip" style="cursor:default">${esc(c)}</span>`).join('')}</div>
+    <label class="lbl">Add a custom category</label>
+    <div class="flexrow">
+      <input class="inp" id="newCat" style="flex:1;min-width:180px" placeholder="e.g. Aviation">
+      <button class="btn ghost" id="addCat">Add</button>
+    </div>
+  </div>
+  <div class="card" style="border-color:var(--bad)">
+    <h3 class="sec" style="margin-top:0;color:var(--bad)">Danger Zone</h3>
+    <div class="flexrow">
+      <button class="btn bad sm" id="wipeAll">Delete all data</button>
+    </div>
+    <p class="hint">Requires confirmation. Export a backup first.</p>
+  </div>
+  <div class="card">
+    <h3 class="sec" style="margin-top:0">About</h3>
+    <div class="kv"><span class="k">Application</span><span class="v">SandVoc</span></div>
+    <div class="kv"><span class="k">Version</span><span class="v">1.0</span></div>
+    <div class="kv"><span class="k">Storage</span><span class="v">${DB.fallback ? 'localStorage fallback' : 'IndexedDB'}</span></div>
+    <div class="kv"><span class="k">Offline capable</span><span class="v">Yes — fully</span></div>
+    <div class="kv"><span class="k">External dependencies</span><span class="v">None (optional dictionary API only)</span></div>
+  </div>`;
+};
+Views.settings.bind = () => {
+  const save = async () => { await saveSettings(); toast('Settings saved', 'ok'); };
+  $$('[data-target]').forEach(c => c.onclick = async () => {
+    State.settings.dailyTarget = Number(c.dataset.target);
+    await saveSettings(); render();
+  });
+  $('#sTarget').onchange = async e => { State.settings.dailyTarget = clamp(Number(e.target.value) || 20, 1, 200); await save(); render(); };
+  $('#sGoal').onchange = async e => { State.settings.totalGoal = clamp(Number(e.target.value) || 8400, 100, 50000); await save(); render(); };
+  $('#sLevel').onchange = async e => { State.settings.defaultLevel = e.target.value; await save(); };
+  $('#sIelts').onchange = async e => { State.settings.ieltsGoal = Number(e.target.value) || 7.5; await save(); };
+  $('#sTargetCefr').onchange = async e => { State.settings.targetCefr = e.target.value; await save(); };
+  $('#sStart').onchange = async e => { State.settings.programStart = e.target.value || todayISO(); await save(); render(); };
+  $('#sIntervals').onchange = async e => {
+    const arr = splitList(e.target.value).map(Number).filter(n => n > 0);
+    State.settings.srsIntervals = arr.length ? arr : DEFAULT_SETTINGS.srsIntervals;
+    await save(); render();
+  };
+  $('#sTheme').onchange = async e => { State.settings.theme = e.target.value; applyTheme(); await save(); };
+  $('#sFont').onchange = async e => { State.settings.fontSize = Number(e.target.value); applyFont(); await save(); };
+  $('#sSpeech').onchange = async e => { State.settings.autoSpeech = e.target.value === 'on'; await save(); };
+  $('#sFetch').onchange = async e => { State.settings.autoFetch = e.target.value === 'on'; await save(); };
+  $('#addCat').onclick = async () => {
+    const v = $('#newCat').value.trim();
+    if (!v) return;
+    if (!allCategories().includes(v)) State.customCategories.push(v);
+    $('#newCat').value = '';
+    await DB.put('meta', { key: 'customCategories', value: State.customCategories });
+    render(); toast('Category added', 'ok');
+  };
+  $('#wipeAll').onclick = () => confirmModal('Delete all data',
+    'This permanently deletes <b>every word, review, quiz result and setting</b> on this device. Export a backup first.',
+    async () => {
+      await DB.clear('words'); await DB.clear('days'); await DB.clear('quizzes'); await DB.clear('meta');
+      State.words = []; State.days = {}; State.quizzes = []; State.customCategories = [];
+      State.settings = { ...DEFAULT_SETTINGS };
+      buildIndexes(); applyTheme(); applyFont(); render(); renderNav();
+      toast('All data deleted', 'bad');
+    }, 'Delete everything', true);
+};
+
+/* ---------- WORD EDITOR ---------- */
+function openWordEditor(existing, prefill = {}) {
+  const isNew = !existing;
+  const w = existing || {
+    id: uid(), word: prefill.word || '', wordLower: (prefill.word || '').toLowerCase(),
+    pos: prefill.pos || '', level: prefill.level || State.settings.defaultLevel,
+    meanings: prefill.meanings || [], example: prefill.example || '',
+    commonUses: [], collocations: [], synonyms: prefill.synonyms || [],
+    antonyms: prefill.antonyms || [], ipa: prefill.ipa || '', simplePron: '',
+    forms: [], categories: prefill.category ? [prefill.category] : [],
+    mySentence: '', notes: '', difficulty: 'Medium', confidence: 3,
+    active: false, passive: true, statusLocked: false, status: 'New',
+    dateAdded: prefill.date || todayISO(), createdAt: Date.now(), updatedAt: Date.now(),
+    srs: { step: 0, nextReview: addDays(prefill.date || todayISO(), 1), last: null },
+    history: [], failCount: 0, isDemo: false
+  };
+  const cats = allCategories();
+  const body = `
+    <div class="grid g2">
+      <div><label class="lbl">Word *</label>
+        <input class="inp" id="eWord" value="${esc(w.word)}" placeholder="e.g. resilient" autocomplete="off"></div>
+      <div><label class="lbl">Part of speech</label>
+        <select class="inp" id="ePos">
+          <option value="">—</option>
+          ${POS_LIST.map(p => `<option ${p === w.pos ? 'selected' : ''}>${p}</option>`).join('')}
+        </select></div>
+    </div>
+    <div class="grid g3">
+      <div><label class="lbl">CEFR level</label>
+        <select class="inp" id="eLevel">${LEVELS.map(l => `<option ${l === w.level ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <div><label class="lbl">Difficulty</label>
+        <select class="inp" id="eDiff">${DIFFICULTIES.map(d => `<option ${d === w.difficulty ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
+      <div><label class="lbl">Date added</label>
+        <input type="date" class="inp" id="eDate" value="${w.dateAdded}"></div>
+    </div>
+    <label class="lbl">Meanings — one per line (most useful first)</label>
+    <textarea class="inp" id="eMeanings" placeholder="a problem or difficulty&#10;a subject being discussed">${esc((w.meanings || []).join('\n'))}</textarea>
+    <label class="lbl">Example sentence</label>
+    <textarea class="inp" id="eExample" placeholder="The company abandoned the project after several months.">${esc(w.example || '')}</textarea>
+    <label class="lbl">Common uses — comma separated</label>
+    <input class="inp" id="eUses" value="${esc((w.commonUses || []).join(', '))}" placeholder="make a decision, make a mistake">
+    <label class="lbl">Collocations — high priority</label>
+    <input class="inp" id="eColl" value="${esc((w.collocations || []).join(', '))}" placeholder="strong coffee, heavy rain, make progress">
+    <div class="grid g2">
+      <div><label class="lbl">Synonyms</label>
+        <input class="inp" id="eSyn" value="${esc((w.synonyms || []).join(', '))}"></div>
+      <div><label class="lbl">Antonyms</label>
+        <input class="inp" id="eAnt" value="${esc((w.antonyms || []).join(', '))}"></div>
+    </div>
+    <div class="grid g2">
+      <div><label class="lbl">IPA</label>
+        <input class="inp" id="eIpa" value="${esc(w.ipa || '')}" placeholder="/rɪˈzɪliənt/"></div>
+      <div><label class="lbl">Simple pronunciation</label>
+        <input class="inp" id="ePron" value="${esc(w.simplePron || '')}" placeholder="rih-ZIL-ee-uhnt"></div>
+    </div>
+    <label class="lbl">Word forms / family</label>
+    <input class="inp" id="eForms" value="${esc((w.forms || []).join(', '))}" placeholder="decide, decision, decisive, decisively">
+    <label class="lbl">Categories</label>
+    <div class="chips" id="eCats">
+      ${cats.map(c => `<span class="chip ${(w.categories || []).includes(c) ? 'on' : ''}" data-cat="${esc(c)}">${esc(c)}</span>`).join('')}
+    </div>
+    <label class="lbl">My own sentence</label>
+    <textarea class="inp" id="eMySentence" placeholder="Write your own natural sentence using this word…">${esc(w.mySentence || '')}</textarea>
+    <label class="lbl">Personal notes</label>
+    <textarea class="inp" id="eNotes" placeholder="Memory hooks, confusion with similar words…">${esc(w.notes || '')}</textarea>
+    <div class="grid g3">
+      <div><label class="lbl">Confidence</label>
+        <select class="inp" id="eConf">
+          ${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${(w.confidence || 3) === n ? 'selected' : ''}>
+            ${n} — ${['Don\'t know', 'Very weak', 'Recognise', 'Comfortable', 'Can use confidently'][n - 1]}</option>`).join('')}
+        </select></div>
+      <div><label class="lbl">Learning status</label>
+        <select class="inp" id="eStatus">
+          <option value="">Auto</option>
+          ${STATUSES.map(s => `<option ${w.statusLocked && w.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+        </select></div>
+      <div><label class="lbl">Vocabulary type</label>
+        <div class="chips">
+          <span class="chip ${w.passive ? 'on' : ''}" id="ePassive">Recognise</span>
+          <span class="chip ${w.active ? 'on' : ''}" id="eActive">Can use</span>
+        </div></div>
+    </div>
+  `;
+  openModal({
+    title: isNew ? 'Add Word' : 'Edit Word',
+    body,
+    footer: `${isNew ? '<button class="btn ghost" id="eFetch">🔍 Look up online</button>' : ''}
+             <button class="btn ghost" data-close>Cancel</button>
+             <button class="btn" id="eSave">${isNew ? 'Add Word' : 'Save Changes'}</button>`,
+    onMount(el, close) {
+      const catEls = $$('#eCats .chip', el);
+      catEls.forEach(c => c.onclick = () => c.classList.toggle('on'));
+      const pas = $('#ePassive', el), act = $('#eActive', el);
+      pas.onclick = () => pas.classList.toggle('on');
+      act.onclick = () => act.classList.toggle('on');
+
+      const collect = () => {
+        const word = $('#eWord', el).value.trim();
+        if (!word) { toast('Word is required', 'bad'); return null; }
+        const st = $('#eStatus', el).value;
+        return {
+          ...w,
+          word, wordLower: word.toLowerCase(),
+          pos: $('#ePos', el).value,
+          level: $('#eLevel', el).value,
+          difficulty: $('#eDiff', el).value,
+          dateAdded: $('#eDate', el).value || todayISO(),
+          meanings: splitList($('#eMeanings', el).value),
+          example: $('#eExample', el).value.trim(),
+          commonUses: splitList($('#eUses', el).value),
+          collocations: splitList($('#eColl', el).value),
+          synonyms: splitList($('#eSyn', el).value),
+          antonyms: splitList($('#eAnt', el).value),
+          ipa: $('#eIpa', el).value.trim(),
+          simplePron: $('#ePron', el).value.trim(),
+          forms: splitList($('#eForms', el).value),
+          categories: catEls.filter(c => c.classList.contains('on')).map(c => c.dataset.cat),
+          mySentence: $('#eMySentence', el).value.trim(),
+          notes: $('#eNotes', el).value.trim(),
+          confidence: Number($('#eConf', el).value),
+          passive: pas.classList.contains('on'),
+          active: act.classList.contains('on'),
+          statusLocked: !!st,
+          status: st || 'New',
+          updatedAt: Date.now()
+        };
+      };
+
+      if (isNew) {
+        $('#eFetch', el).onclick = async () => {
+          const word = $('#eWord', el).value.trim();
+          if (!word) { toast('Type a word first', 'bad'); return; }
+          const btn = $('#eFetch', el);
+          btn.innerHTML = '<span class="spin"></span> Looking up…';
+          btn.disabled = true;
+          const d = await fetchDictionary(word);
+          btn.textContent = '🔍 Look up online';
+          btn.disabled = false;
+          if (!d) { toast('No dictionary data available', 'warn'); return; }
+          if (d.pos && !$('#ePos', el).value) $('#ePos', el).value = POS_LIST.includes(d.pos) ? d.pos : $('#ePos', el).value;
+          if (d.meanings.length) $('#eMeanings', el).value = d.meanings.join('\n');
+          if (d.example) $('#eExample', el).value = d.example;
+          if (d.ipa) $('#eIpa', el).value = d.ipa;
+          if (d.synonyms.length) $('#eSyn', el).value = d.synonyms.join(', ');
+          if (d.antonyms.length) $('#eAnt', el).value = d.antonyms.join(', ');
+          toast('Data loaded — edit freely', 'ok');
+        };
+      }
+
+      $('#eSave', el).onclick = async () => {
+        const obj = collect();
+        if (!obj) return;
+        if (isNew) {
+          const dupe = liveWords().find(x => x.wordLower === obj.wordLower && x.id !== obj.id);
+          if (dupe) { close(); askDuplicate(obj, dupe); return; }
+        }
+        await saveWord(obj);
+        close();
+        toast(isNew ? `"${obj.word}" added` : 'Changes saved', 'ok');
+        render(); renderNav();
+      };
+    }
+  });
+}
+
+function askDuplicate(newWord, existing) {
+  openModal({
+    title: 'Duplicate word',
+    small: true,
+    body: `<p style="font-size:14px;line-height:1.65;color:var(--tx2)">
+      <b>${esc(existing.word)}</b> already exists (added ${prettyDate(existing.dateAdded)}, ${(existing.history || []).length} reviews).</p>`,
+    footer: `<button class="btn ghost" id="dIgnore">Ignore</button>
+             <button class="btn ghost" id="dMerge">Merge</button>
+             <button class="btn bad" id="dReplace">Replace</button>`,
+    onMount(el, close) {
+      $('#dIgnore', el).onclick = () => { close(); toast('Duplicate ignored', 'warn'); };
+      $('#dMerge', el).onclick = async () => {
+        const merged = {
+          ...existing,
+          meanings: [...new Set([...(existing.meanings || []), ...(newWord.meanings || [])])],
+          collocations: [...new Set([...(existing.collocations || []), ...(newWord.collocations || [])])],
+          commonUses: [...new Set([...(existing.commonUses || []), ...(newWord.commonUses || [])])],
+          synonyms: [...new Set([...(existing.synonyms || []), ...(newWord.synonyms || [])])],
+          antonyms: [...new Set([...(existing.antonyms || []), ...(newWord.antonyms || [])])],
+          forms: [...new Set([...(existing.forms || []), ...(newWord.forms || [])])],
+          categories: [...new Set([...(existing.categories || []), ...(newWord.categories || [])])],
+          example: existing.example || newWord.example,
+          ipa: existing.ipa || newWord.ipa,
+          updatedAt: Date.now()
+        };
+        await saveWord(merged);
+        close(); toast('Words merged', 'ok'); render(); renderNav();
+      };
+      $('#dReplace', el).onclick = async () => {
+        const replacement = { ...newWord, id: existing.id, createdAt: existing.createdAt, history: existing.history, srs: existing.srs, failCount: existing.failCount };
+        await saveWord(replacement);
+        close(); toast('Word replaced', 'ok'); render(); renderNav();
+      };
+    }
+  });
+}
+
+/* ---------- DATA MUTATIONS ---------- */
+async function saveWord(w, quiet = false) {
+  w.updatedAt = Date.now();
+  const i = State.words.findIndex(x => x.id === w.id);
+  if (i >= 0) State.words[i] = w; else State.words.push(w);
+  await DB.put('words', w);
+  buildIndexes();
+  if (!quiet) { /* caller re-renders */ }
+}
+async function hardDeleteWord(id) {
+  State.words = State.words.filter(w => w.id !== id);
+  await DB.del('words', id);
+  buildIndexes();
+  render(); renderNav();
+}
+async function addWordQuick(word, date, opts = {}) {
+  const lower = word.toLowerCase();
+  if (liveWords().some(w => w.wordLower === lower)) {
+    if (!opts.silent) toast(`"${word}" already exists`, 'warn');
+    return 'dupe';
+  }
+  let data = {};
+  if (opts.fetch !== false && State.settings.autoFetch && navigator.onLine) {
+    const d = await fetchDictionary(word);
+    if (d) data = d;
+  }
+  const w = {
+    id: uid(), word, wordLower: lower,
+    pos: data.pos || '',
+    level: opts.level || State.settings.defaultLevel,
+    meanings: data.meanings || [],
+    example: data.example || '',
+    commonUses: [], collocations: [],
+    synonyms: data.synonyms || [], antonyms: data.antonyms || [],
+    ipa: data.ipa || '', simplePron: '',
+    forms: [], categories: opts.category ? [opts.category] : [],
+    mySentence: '', notes: '',
+    difficulty: 'Medium', confidence: 3,
+    active: false, passive: true, statusLocked: false, status: 'New',
+    dateAdded: date, createdAt: Date.now(), updatedAt: Date.now(),
+    srs: { step: 0, nextReview: addDays(date, 1), last: null },
+    history: [], failCount: 0, isDemo: false
+  };
+  await saveWord(w, true);
+  if (!opts.silent) {
+    const enriched = data.meanings && data.meanings.length;
+    toast(enriched ? `"${word}" added with definition` : `"${word}" added`, 'ok');
+    render(); renderNav();
+  }
+  return 'ok';
+}
+async function markSkipped(date, skipped) {
+  const d = getDay(date);
+  d.skipped = skipped;
+  d.skippedAt = skipped ? Date.now() : null;
+  State.days[date] = d;
+  await DB.put('days', d);
+  buildIndexes();
+  toast(skipped ? `${shortDate(date)} marked as skipped` : `${shortDate(date)} restored`, 'ok');
+  render(); renderNav();
+}
+async function applyReview(w, rating) {
+  const today = todayISO();
+  const intervals = State.settings.srsIntervals;
+  let step = w.srs?.step ?? 0;
+  if (rating === 'again') { step = 0; w.failCount = (w.failCount || 0) + 1; }
+  else if (rating === 'hard') { step = Math.max(0, step - 1); w.failCount = (w.failCount || 0) + 1; }
+  else if (rating === 'good') { step = Math.min(step + 1, intervals.length - 1); }
+  else if (rating === 'easy') { step = Math.min(step + 2, intervals.length - 1); }
+  const days = rating === 'again' ? 1 : intervals[Math.min(step, intervals.length - 1)];
+  w.srs = { step, last: today, nextReview: addDays(today, days), lastRating: rating };
+  w.history = w.history || [];
+  w.history.push({ d: today, r: rating, t: Date.now() });
+  if (rating === 'again') w.confidence = Math.max(1, (w.confidence || 3) - 1);
+  else if (rating === 'easy') w.confidence = Math.min(5, (w.confidence || 3) + 1);
+  else if (rating === 'good' && step >= 3) w.confidence = Math.min(5, (w.confidence || 3) + 1);
+  await saveWord(w, true);
+}
+
+/* ---------- IMPORT / EXPORT ---------- */
+function downloadFile(name, content, type = 'application/json') {
+  try {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+    toast('File downloaded', 'ok');
+  } catch (e) { toast('Download failed', 'bad'); }
+}
+function exportBackup() {
+  const payload = {
+    meta: { app: 'SandVoc', version: 1, exportedAt: new Date().toISOString(),
+      counts: { words: State.words.length, quizzes: State.quizzes.length } },
+    settings: State.settings, words: State.words,
+    days: Object.values(State.days), quizzes: State.quizzes,
+    customCategories: State.customCategories
+  };
+  downloadFile(`sandvoc-backup-${todayISO()}.json`, JSON.stringify(payload, null, 2));
+}
+function exportCSV() {
+  const cols = ['word', 'pos', 'level', 'meanings', 'example', 'commonUses', 'collocations',
+    'synonyms', 'antonyms', 'ipa', 'forms', 'categories', 'mySentence', 'notes',
+    'difficulty', 'status', 'confidence', 'dateAdded', 'reviews', 'failCount', 'nextReview'];
+  const rows = [cols.join(',')];
+  for (const w of liveWords()) {
+    rows.push([
+      w.word, w.pos, w.level, (w.meanings || []).join(' | '),
+      w.example, (w.commonUses || []).join(' | '), (w.collocations || []).join(' | '),
+      (w.synonyms || []).join(' | '), (w.antonyms || []).join(' | '),
+      w.ipa, (w.forms || []).join(' | '), (w.categories || []).join(' | '),
+      w.mySentence, w.notes, w.difficulty, statusOf(w), w.confidence,
+      w.dateAdded, (w.history || []).length, w.failCount || 0, w.srs?.nextReview || ''
+    ].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','));
+  }
+  downloadFile(`sandvoc-vocabulary-${todayISO()}.csv`, rows.join('\n'), 'text/csv');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  $('#fileIn').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    e.target.value = '';
+    handleImport(text, file.name);
+  });
+});
+function handleImport(text) {
+  const trimmed = text.trim();
+  let parsed = null;
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try { parsed = JSON.parse(trimmed); } catch { toast('Invalid JSON file', 'bad'); return; }
+  }
+  if (parsed) {
+    if (Array.isArray(parsed)) { importWords(parsed); return; }
+    if (parsed.words) { openImportBackupDialog(parsed); return; }
+    toast('Unrecognised JSON structure', 'bad');
+    return;
+  }
+  const firstLine = trimmed.split('\n')[0].toLowerCase();
+  if (firstLine.includes(',') && (firstLine.includes('word') || firstLine.includes('level'))) {
+    importCSV(trimmed);
+    return;
+  }
+  const words = trimmed.split(/\r?\n/).flatMap(l => l.split(/[,;]+/)).map(s => s.trim()).filter(Boolean);
+  if (!words.length) { toast('Nothing to import', 'bad'); return; }
+  importWords(words.map(w => ({ word: w })));
+}
+function openImportBackupDialog(payload) {
+  const n = (payload.words || []).length;
+  openModal({
+    title: 'Restore full backup', small: true,
+    body: `<p style="font-size:14px;line-height:1.7;color:var(--tx2)">
+      This backup contains <b>${n}</b> words, exported
+      ${payload.meta?.exportedAt ? new Date(payload.meta.exportedAt).toLocaleString() : 'unknown date'}.</p>
+      <p style="font-size:13.5px;line-height:1.7;color:var(--tx2);margin-top:10px">
+      <b>Merge</b> keeps both devices' words (newer version wins on duplicates).<br>
+      <b>Replace</b> deletes everything on this device first.</p>`,
+    footer: `<button class="btn ghost" data-close>Cancel</button>
+             <button class="btn ghost" id="bMerge">Merge</button>
+             <button class="btn bad" id="bReplace">Replace all</button>`,
+    onMount(el, close) {
+      $('#bMerge', el).onclick = async () => { close(); await restoreBackup(payload, false); };
+      $('#bReplace', el).onclick = async () => { close(); await restoreBackup(payload, true); };
+    }
+  });
+}
+async function restoreBackup(payload, replace) {
+  try {
+    if (replace) {
+      await DB.clear('words'); await DB.clear('days');
+      State.words = []; State.days = {};
+    }
+    const byLower = new Map(liveWords().map(w => [w.wordLower, w]));
+    let added = 0, updated = 0;
+    for (const raw of (payload.words || [])) {
+      if (!raw || !raw.word) continue;
+      const w = normalizeWordRecord(raw);
+      const ex = byLower.get(w.wordLower);
+      if (ex) {
+        if ((w.updatedAt || 0) > (ex.updatedAt || 0)) {
+          w.id = ex.id;
+          w.history = mergeHistory(ex.history, w.history);
+          const i = State.words.findIndex(x => x.id === ex.id);
+          State.words[i] = w;
+          await DB.put('words', w);
+          updated++;
+        }
+      } else {
+        State.words.push(w);
+        await DB.put('words', w);
+        added++;
+      }
+    }
+    for (const d of (payload.days || [])) {
+      if (!d || !d.date) continue;
+      State.days[d.date] = d;
+      await DB.put('days', d);
+    }
+    if (payload.settings) {
+      State.settings = { ...DEFAULT_SETTINGS, ...payload.settings };
+      await saveSettings();
+    }
+    if (payload.quizzes) {
+      const ids = new Set(State.quizzes.map(q => q.id));
+      for (const q of payload.quizzes) if (!ids.has(q.id)) State.quizzes.push(q);
+      await DB.bulkPut('quizzes', State.quizzes);
+    }
+    if (payload.customCategories) {
+      State.customCategories = [...new Set([...State.customCategories, ...payload.customCategories])];
+      await DB.put('meta', { key: 'customCategories', value: State.customCategories });
+    }
+    buildIndexes(); applyTheme(); applyFont();
+    render(); renderNav();
+    toast(`Restore complete — ${added} added, ${updated} updated`, 'ok', 3600);
+  } catch (e) {
+    console.error(e);
+    toast('Restore failed — file may be malformed', 'bad');
+  }
+}
+function mergeHistory(a = [], b = []) {
+  const map = new Map();
+  [...a, ...b].forEach(h => { if (h && h.d) map.set(h.d + '|' + h.t, h); });
+  return [...map.values()].sort((x, y) => (x.t || 0) - (y.t || 0));
+}
+function normalizeWordRecord(raw) {
+  const word = String(raw.word || '').trim();
+  return {
+    id: raw.id || uid(), word, wordLower: word.toLowerCase(),
+    pos: raw.pos || '',
+    level: LEVELS.includes(raw.level) ? raw.level : 'B1',
+    meanings: splitList(raw.meanings),
+    example: raw.example || '',
+    commonUses: splitList(raw.commonUses),
+    collocations: splitList(raw.collocations),
+    synonyms: splitList(raw.synonyms),
+    antonyms: splitList(raw.antonyms),
+    ipa: raw.ipa || '', simplePron: raw.simplePron || '',
+    forms: splitList(raw.forms), categories: splitList(raw.categories),
+    mySentence: raw.mySentence || '', notes: raw.notes || '',
+    difficulty: DIFFICULTIES.includes(raw.difficulty) ? raw.difficulty : 'Medium',
+    confidence: clamp(Number(raw.confidence) || 3, 1, 5),
+    active: !!raw.active, passive: raw.passive !== false,
+    statusLocked: !!raw.statusLocked, status: raw.status || 'New',
+    dateAdded: raw.dateAdded || todayISO(),
+    createdAt: raw.createdAt || Date.now(), updatedAt: raw.updatedAt || Date.now(),
+    srs: raw.srs || { step: 0, nextReview: addDays(raw.dateAdded || todayISO(), 1), last: null },
+    history: Array.isArray(raw.history) ? raw.history : [],
+    failCount: Number(raw.failCount) || 0, isDemo: !!raw.isDemo
+  };
+}
+function importCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) { toast('CSV appears empty', 'bad'); return; }
+  const parseLine = line => {
+    const out = []; let cur = '', q = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { if (q && line[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
+      else if (c === ',' && !q) { out.push(cur); cur = ''; }
+      else cur += c;
+    }
+    out.push(cur);
+    return out.map(s => s.trim());
+  };
+  const header = parseLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g, ''));
+  const idx = name => header.indexOf(name);
+  const get = (row, name) => { const i = idx(name); return i >= 0 ? (row[i] || '') : ''; };
+  const recs = [];
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseLine(lines[i]);
+    const w = get(row, 'word');
+    if (!w) continue;
+    recs.push({
+      word: w, pos: get(row, 'pos'), level: get(row, 'level'),
+      meanings: get(row, 'meanings') || get(row, 'meaning'),
+      example: get(row, 'example'), commonUses: get(row, 'commonuses'),
+      collocations: get(row, 'collocations'), synonyms: get(row, 'synonyms'),
+      antonyms: get(row, 'antonyms'), ipa: get(row, 'ipa'), forms: get(row, 'forms'),
+      categories: get(row, 'categories'), mySentence: get(row, 'mysentence'),
+      notes: get(row, 'notes'), difficulty: get(row, 'difficulty'),
+      dateAdded: get(row, 'dateadded') || todayISO()
+    });
+  }
+  importWords(recs);
+}
+async function importWords(recs) {
+  const list = recs.map(r => typeof r === 'string' ? { word: r } : r).filter(r => r && r.word);
+  if (!list.length) { toast('No valid words found', 'bad'); return; }
+  const existing = new Map(liveWords().map(w => [w.wordLower, w]));
+  const dupes = list.filter(r => existing.has(String(r.word).toLowerCase()));
+  const fresh = list.filter(r => !existing.has(String(r.word).toLowerCase()));
+  const doImport = async strategy => {
+    let added = 0, merged = 0, skipped = 0;
+    for (const r of fresh) { await saveWord(normalizeWordRecord(r), true); added++; }
+    for (const r of dupes) {
+      const ex = existing.get(String(r.word).toLowerCase());
+      if (strategy === 'ignore') { skipped++; continue; }
+      if (strategy === 'replace') {
+        const w = { ...normalizeWordRecord(r), id: ex.id, history: ex.history, srs: ex.srs, createdAt: ex.createdAt };
+        await saveWord(w, true); merged++;
+      } else {
+        const w = { ...ex, ...normalizeWordRecord(r), id: ex.id, history: ex.history, srs: ex.srs, createdAt: ex.createdAt };
+        w.meanings = [...new Set([...(ex.meanings || []), ...w.meanings])];
+        w.collocations = [...new Set([...(ex.collocations || []), ...w.collocations])];
+        w.categories = [...new Set([...(ex.categories || []), ...w.categories])];
+        await saveWord(w, true); merged++;
+      }
+    }
+    buildIndexes(); render(); renderNav();
+    toast(`Import complete — ${added} new, ${merged} merged, ${skipped} skipped`, 'ok', 3600);
+  };
+  if (dupes.length) {
+    openModal({
+      title: 'Duplicates found', small: true,
+      body: `<p style="font-size:14px;line-height:1.7;color:var(--tx2)">
+        ${fresh.length} new word${fresh.length === 1 ? '' : 's'} will be added.<br>
+        ${dupes.length} word${dupes.length === 1 ? '' : 's'} already exist.</p>`,
+      footer: `<button class="btn ghost" id="iIgnore">Ignore dupes</button>
+               <button class="btn ghost" id="iMerge">Merge</button>
+               <button class="btn" id="iReplace">Replace</button>`,
+      onMount(el, close) {
+        $('#iIgnore', el).onclick = () => { close(); doImport('ignore'); };
+        $('#iMerge', el).onclick = () => { close(); doImport('merge'); };
+        $('#iReplace', el).onclick = () => { close(); doImport('replace'); };
+      }
+    });
+  } else doImport('ignore');
+}
+
+/* ---------- SETTINGS PERSISTENCE ---------- */
+async function saveSettings() {
+  await DB.put('meta', { key: 'settings', value: State.settings });
+  applyTheme(); applyFont();
+}
+const applyTheme = () => { document.documentElement.dataset.theme = State.settings.theme || 'dark'; };
+const applyFont = () => { document.documentElement.style.setProperty('--fs', (State.settings.fontSize || 15) + 'px'); };
+function allCategories() {
+  const set = new Set(BASE_CATEGORIES);
+  State.customCategories.forEach(c => set.add(c));
+  liveWords().forEach(w => (w.categories || []).forEach(c => set.add(c)));
+  return [...set].sort();
+}
+
+/* ---------- DEMO DATA ---------- */
+const DEMO_WORDS = [
+  { word: 'abandon', pos: 'verb', level: 'B1',
+    meanings: ['to leave someone or something permanently', 'to stop doing something before it is finished'],
+    example: 'The company abandoned the project after several months.',
+    commonUses: ['abandon a plan', 'abandon ship'],
+    collocations: ['abandon a project', 'abandon hope', 'abandoned building'],
+    synonyms: ['desert', 'forsake', 'give up'], antonyms: ['keep', 'continue', 'maintain'],
+    ipa: '/əˈbændən/', simplePron: 'uh-BAN-duhn',
+    forms: ['abandon', 'abandoned', 'abandoning', 'abandonment'],
+    categories: ['Everyday', 'Speaking'], difficulty: 'Medium' },
+  { word: 'achieve', pos: 'verb', level: 'A2',
+    meanings: ['to succeed in doing something after effort'],
+    example: 'She achieved her goal of running a marathon.',
+    commonUses: ['achieve a goal', 'achieve success'],
+    collocations: ['achieve a goal', 'achieve results', 'achieve success'],
+    synonyms: ['accomplish', 'attain', 'reach'], antonyms: ['fail'],
+    ipa: '/əˈtʃiːv/', simplePron: 'uh-CHEEV',
+    forms: ['achieve', 'achieved', 'achieving', 'achievement'],
+    categories: ['Everyday', 'Work', 'IELTS'], difficulty: 'Easy' },
+  { word: 'decisive', pos: 'adjective', level: 'B2',
+    meanings: ['able to make decisions quickly and confidently', 'having a strong effect on the result of something'],
+    example: 'Her decisive action saved the company from bankruptcy.',
+    commonUses: ['a decisive moment', 'decisive action'],
+    collocations: ['decisive action', 'decisive victory', 'decisive factor'],
+    synonyms: ['determined', 'resolute'], antonyms: ['indecisive', 'hesitant'],
+    ipa: '/dɪˈsaɪsɪv/', simplePron: 'dih-SY-siv',
+    forms: ['decide', 'decision', 'decisive', 'decisively', 'decisiveness'],
+    categories: ['Academic', 'IELTS', 'Business'], difficulty: 'Medium' },
+  { word: 'issue', pos: 'noun', level: 'B1',
+    meanings: ['an important problem or subject that people discuss',
+               'a magazine or newspaper edition published at one time',
+               'to officially give something to people'],
+    example: 'Climate change is one of the biggest issues facing our generation.',
+    commonUses: ['raise an issue', 'address an issue'],
+    collocations: ['raise an issue', 'a serious issue', 'issue a statement', 'the latest issue'],
+    synonyms: ['problem', 'matter', 'topic'], antonyms: [],
+    ipa: '/ˈɪʃuː/', simplePron: 'ISH-oo',
+    forms: ['issue', 'issued', 'issuing'],
+    categories: ['Academic', 'Society', 'IELTS'], difficulty: 'Medium' },
+  { word: 'resilient', pos: 'adjective', level: 'C1',
+    meanings: ['able to recover quickly from difficulties'],
+    example: 'Children are often more resilient than adults expect.',
+    commonUses: ['a resilient economy', 'highly resilient'],
+    collocations: ['resilient economy', 'remarkably resilient', 'build resilience'],
+    synonyms: ['tough', 'adaptable'], antonyms: ['fragile', 'vulnerable'],
+    ipa: '/rɪˈzɪliənt/', simplePron: 'rih-ZIL-ee-uhnt',
+    forms: ['resilient', 'resilience', 'resiliently'],
+    categories: ['Academic', 'IELTS', 'People'], difficulty: 'Hard' },
+  { word: 'negotiate', pos: 'verb', level: 'B2',
+    meanings: ['to discuss something in order to reach an agreement'],
+    example: 'The two sides are still negotiating the terms of the contract.',
+    commonUses: ['negotiate a deal', 'negotiate with somebody'],
+    collocations: ['negotiate a deal', 'negotiate terms', 'negotiate a salary'],
+    synonyms: ['bargain', 'discuss'], antonyms: [],
+    ipa: '/nɪˈɡəʊʃieɪt/', simplePron: 'nih-GOH-shee-ayt',
+    forms: ['negotiate', 'negotiation', 'negotiator', 'negotiable'],
+    categories: ['Business', 'Work', 'Speaking'], difficulty: 'Medium' },
+  { word: 'keen', pos: 'adjective', level: 'B1',
+    meanings: ['very interested and enthusiastic about something', 'very good or strong (of a sense or ability)'],
+    example: 'She is keen to improve her English before the exam.',
+    commonUses: ['keen on something', 'keen to do something'],
+    collocations: ['keen interest', 'keen on', 'keen to learn'],
+    synonyms: ['eager', 'enthusiastic'], antonyms: ['reluctant', 'indifferent'],
+    ipa: '/kiːn/', simplePron: 'KEEN',
+    forms: ['keen', 'keenly', 'keenness'],
+    categories: ['Everyday', 'Emotions', 'Speaking'], difficulty: 'Easy' },
+  { word: 'significant', pos: 'adjective', level: 'B2',
+    meanings: ['important or large enough to be noticed'],
+    example: 'There has been a significant improvement in air quality.',
+    commonUses: ['a significant increase', 'statistically significant'],
+    collocations: ['significant increase', 'significant difference', 'significant impact'],
+    synonyms: ['substantial', 'considerable', 'important'], antonyms: ['insignificant', 'minor'],
+    ipa: '/sɪɡˈnɪfɪkənt/', simplePron: 'sig-NIF-ih-kuhnt',
+    forms: ['signify', 'significance', 'significant', 'significantly'],
+    categories: ['Academic', 'IELTS', 'Science'], difficulty: 'Medium' },
+  { word: 'carry out', pos: 'phrasal verb', level: 'B1',
+    meanings: ['to perform or complete a task, plan, or instruction'],
+    example: 'The researchers carried out a series of experiments.',
+    commonUses: ['carry out research', 'carry out a plan'],
+    collocations: ['carry out research', 'carry out a survey', 'carry out an order'],
+    synonyms: ['conduct', 'perform', 'execute'], antonyms: [],
+    ipa: '/ˈkæri aʊt/', simplePron: 'KAR-ee owt',
+    forms: ['carry out', 'carried out', 'carrying out'],
+    categories: ['Phrasal Verbs', 'Academic', 'Work'], difficulty: 'Medium' },
+  { word: 'in the long run', pos: 'idiom', level: 'B2',
+    meanings: ['over a long period of time in the future'],
+    example: 'Studying every day will pay off in the long run.',
+    commonUses: ['pay off in the long run', 'cheaper in the long run'],
+    collocations: ['in the long run', 'in the short run'],
+    synonyms: ['eventually', 'ultimately'], antonyms: ['in the short term'],
+    ipa: '/ɪn ðə lɒŋ rʌn/', simplePron: 'in thuh LONG RUN',
+    forms: [], categories: ['Idioms', 'Speaking', 'IELTS'], difficulty: 'Medium' }
+];
+async function loadDemoData() {
+  const existing = new Set(liveWords().map(w => w.wordLower));
+  let n = 0;
+  for (let i = 0; i < DEMO_WORDS.length; i++) {
+    const d = DEMO_WORDS[i];
+    if (existing.has(d.word.toLowerCase())) continue;
+    const date = addDays(todayISO(), -i);
+    const w = normalizeWordRecord({
+      ...d, id: uid(), dateAdded: date,
+      createdAt: Date.now() - i * 1000, updatedAt: Date.now() - i * 1000,
+      confidence: 3, srs: { step: 0, nextReview: addDays(date, 1), last: null },
+      history: [], isDemo: true
+    });
+    w.isDemo = true;
+    await saveWord(w, true);
+    n++;
+  }
+  State.settings.demoLoaded = true;
+  await saveSettings();
+  buildIndexes(); render(); renderNav();
+  toast(n ? `${n} demo words loaded` : 'Demo words already present', n ? 'ok' : 'warn');
+}
+async function removeDemoData() {
+  const demos = State.words.filter(w => w.isDemo);
+  for (const w of demos) await DB.del('words', w.id);
+  State.words = State.words.filter(w => !w.isDemo);
+  State.settings.demoLoaded = false;
+  await saveSettings();
+  buildIndexes(); render(); renderNav();
+}
+
+/* ---------- BOOTSTRAP ---------- */
+async function loadAll() {
+  await DB.init();
+  State.words = (await DB.getAll('words')).filter(w => w && w.id);
+  const days = await DB.getAll('days');
+  State.days = {};
+  days.forEach(d => { if (d && d.date) State.days[d.date] = d; });
+  const meta = await DB.getAll('meta');
+  const settingsRec = meta.find(m => m.key === 'settings');
+  if (settingsRec?.value) State.settings = { ...DEFAULT_SETTINGS, ...settingsRec.value };
+  const catRec = meta.find(m => m.key === 'customCategories');
+  if (catRec && Array.isArray(catRec.value)) State.customCategories = catRec.value;
+  State.quizzes = (await DB.getAll('quizzes')).filter(q => q && q.id);
+  if (!State.settings.programStart) State.settings.programStart = todayISO();
+  if (!State.settings.deviceName) {
+    State.settings.deviceName = /Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Phone' : 'Laptop';
+  }
+  buildIndexes(); applyTheme(); applyFont();
+}
+function render() {
+  const root = $('#viewRoot');
+  const view = Views[State.view] || Views.dashboard;
+  root.innerHTML = view();
+  if (view.bind) view.bind();
+}
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input, textarea, select')) return;
+  if (e.key === '/') {
+    e.preventDefault();
+    const s = $('#vSearch');
+    if (s) s.focus();
+    else { go('vocab'); setTimeout(() => $('#vSearch')?.focus(), 80); }
+  }
+  if (e.key === 'n' && !e.metaKey && !e.ctrlKey) { e.preventDefault(); openWordEditor(null); }
+});
+window.addEventListener('online', () => toast('Back online', 'ok', 1600));
+window.addEventListener('offline', () => toast('Offline — everything still works', 'warn', 2000));
+window.addEventListener('beforeunload', () => { try { saveSettings(); } catch { } });
+
+(async function init() {
+  try { await loadAll(); }
+  catch (e) { console.error('Init error:', e); toast('Storage problem — running in memory', 'bad', 4000); }
+  renderNav();
+  render();
+  if (!localStorage.getItem('sandvoc_seen_intro')) {
+    localStorage.setItem('sandvoc_seen_intro', '1');
+    setTimeout(() => {
+      openModal({
+        title: 'Welcome to SandVoc',
+        body: `<p style="font-size:14px;line-height:1.75;color:var(--tx2)">
+          Your personal vocabulary database, spaced-repetition system and progress tracker — all offline.</p>
+        <ul style="font-size:13.5px;line-height:1.9;color:var(--tx2);padding-left:20px;margin-top:10px">
+          <li><b>Add Words</b> — type a word, press Enter. Meaning, pronunciation and example are fetched automatically.</li>
+          <li><b>Review</b> — spaced repetition with Again / Hard / Good / Easy.</li>
+          <li><b>Quiz</b> — active recall practice.</li>
+          <li><b>Backup & Sync</b> — export regularly to move data between devices.</li>
+        </ul>
+        <p style="font-size:13px;line-height:1.7;color:var(--tx3);margin-top:12px">
+          Everything is stored on this device only. Export a backup before switching browsers.</p>`,
+        footer: `<button class="btn ghost" data-close>Start empty</button>
+                 <button class="btn" id="loadDemoIntro">Load 10 demo words</button>`,
+        onMount(el, close) {
+          $('#loadDemoIntro', el).onclick = async () => { close(); await loadDemoData(); };
+        }
+      });
+    }, 500);
+  }
+})();
+</script>
+</body>
+</html>
